@@ -12,7 +12,7 @@ Created by **Claude Opus 5.5**, based on the lecture notes by **Sang Hoon Lee (�
 | --- | --- |
 | `thermo2-en.html` | American English version |
 | `thermo2-ko.html` | Korean version (한국어) |
-| `README-thermo2.md` | This file |
+| `README.md` | This file |
 
 Each page is a single self-contained HTML file with inline CSS and JavaScript. There is no build step and there are no dependencies. The only external request is to Google Fonts for IBM Plex Sans KR. If that request fails, the page falls back to system fonts. Each page links to the other language from its top bar. Equations use real fraction bars, radical signs, and stacked sub- and superscripts, and halves are written as (1/2).
 
