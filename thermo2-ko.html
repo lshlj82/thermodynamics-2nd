@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>엔트로피와 열역학 제2법칙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F8FB; --grid:#E1E8F0; --ink:#1A2433; --muted:#5B6779; --panel:#FFFFFF; --line:#C8D2DE;
+  --cyan:#5DEBEE; --magenta:#E55ADC; --red:#DE3127; --blue:#2B46D4; --green:#18924A;
+  --copper:#C9773F;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#132039; --grid:#1B2B48; --ink:#E7EDF6; --muted:#9DAAC0; --panel:#192946; --line:#2D4064;
+    --cyan:#47DDE1; --magenta:#F07AE8; --red:#FF5B4F; --blue:#93A6FF; --green:#4FD27F; --copper:#E39461;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#132039; --grid:#1B2B48; --ink:#E7EDF6; --muted:#9DAAC0; --panel:#192946; --line:#2D4064;
+  --cyan:#47DDE1; --magenta:#F07AE8; --red:#FF5B4F; --blue:#93A6FF; --green:#4FD27F; --copper:#E39461;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+body{
+  margin:0; color:var(--ink); background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;
+  font-family:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+i,.m{font-style:italic}
+sub{font-size:.7em}
+a{color:var(--blue)}
+:focus-visible{outline:3px solid var(--magenta);outline-offset:2px;border-radius:3px}
+
+/* nav */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:18px}
+.toc{display:flex;gap:4px;overflow-x:auto;flex:1;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14px;padding:4px 9px;border-radius:6px}
+.toc a:hover{color:var(--ink);background:var(--grid)}
+.toc a span{color:var(--blue);font-weight:700;margin-right:4px}
+.langlink{flex:none;font-size:14px;padding:4px 12px;border:1.5px solid var(--ink);border-radius:8px;color:var(--ink);text-decoration:none}
+.langlink:hover{background:var(--ink);color:var(--paper)}
+
+/* hero */
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.hero{padding:56px 0 28px}
+.credit{font-size:15px;color:var(--muted);margin:0 0 18px;max-width:60ch}
+.credit b{color:var(--ink);font-weight:500}
+h1{font-size:clamp(40px,7vw,78px);line-height:1.04;letter-spacing:-.02em;margin:0;font-weight:700;max-width:14ch}
+.hero p.sub{font-size:19px;max-width:56ch;margin:18px 0 0}
+.hero-wire{width:100%;height:auto;display:block;margin-top:34px}
+.scrawl{color:var(--blue);font-size:15px;font-weight:500;line-height:1.5;border-left:3px solid currentColor;padding:2px 0 2px 12px;max-width:52ch}
+
+/* sections */
+section{padding:56px 0 24px;border-top:1px dashed var(--line)}
+h2{font-size:clamp(26px,3.6vw,36px);line-height:1.15;margin:0 0 14px;letter-spacing:-.01em;display:flex;gap:14px;align-items:baseline}
+h2 .n{font-size:.62em;color:var(--blue);border:2px solid var(--blue);border-radius:50%;width:1.7em;height:1.7em;display:inline-grid;place-items:center;flex:none;transform:translateY(-.15em)}
+.prose{max-width:68ch}
+.prose p{margin:0 0 12px}
+.key{display:inline-flex;flex-wrap:wrap;gap:10px 34px;align-items:center;border:6px solid var(--cyan);border-radius:5px;padding:12px 22px;margin:8px 0 22px;font-size:19px;background:var(--panel)}
+.key span{white-space:nowrap}
+.frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.9em;line-height:1.15;margin:0 2px}
+.frac>span:first-child{border-bottom:1.5px solid currentColor;padding:0 3px}
+
+.sim{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(250px,1fr);gap:18px;background:var(--panel);border:1.5px solid var(--line);border-radius:12px;padding:18px}
+@media (max-width:820px){.sim{grid-template-columns:1fr}}
+.viz{min-width:0;display:flex;flex-direction:column;gap:12px}
+.viz svg,.viz canvas{width:100%;display:block}
+.controls{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ctl label{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+.ctl output{font-variant-numeric:tabular-nums;font-weight:500}
+input[type=range]{width:100%;accent-color:var(--blue);margin:4px 0 0}
+select{font:inherit;font-size:15px;width:100%;padding:6px 8px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.btn{font:inherit;font-size:14px;padding:5px 11px;border-radius:7px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{border-color:var(--blue);background:var(--blue);color:var(--panel)}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer}
+.check input{accent-color:var(--blue);width:17px;height:17px}
+.lbl{font-size:15px;margin-bottom:4px;display:block}
+dl.read{display:grid;grid-template-columns:1fr auto;gap:5px 12px;margin:4px 0 0;font-size:15px;border-top:1px solid var(--line);padding-top:10px}
+dl.read dt{color:var(--muted)}
+dl.read dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:500}
+.verdict{font-size:15px;padding:8px 12px;border-radius:8px;border-left:5px solid var(--magenta);background:color-mix(in srgb,var(--magenta) 10%,transparent)}
+.aside{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px;align-items:start}
+@media (max-width:820px){.aside{grid-template-columns:1fr}}
+.boxed{border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;background:var(--panel);font-size:16px}
+.boxed h3{margin:0 0 6px;font-size:17px}
+
+.mag{color:var(--magenta)}
+.bars{display:flex;flex-direction:column;gap:7px;font-size:14px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:8px;align-items:center}
+.bar-track{height:14px;background:var(--grid);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width .15s}
+.bar-row .v{text-align:right;font-variant-numeric:tabular-nums}
+.bar-cap{grid-column:1/-1;color:var(--muted);margin-bottom:-4px}
+table.tbl{border-collapse:collapse;width:100%;font-size:15px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:right}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl th{color:var(--muted);font-weight:500}
+.eq{font-size:16px;line-height:1.7}
+.eq .sum{font-weight:700}
+.small{font-size:14px;color:var(--muted)}
+footer{padding:40px 0 60px;border-top:1px dashed var(--line);margin-top:40px;color:var(--muted);font-size:15px}
+svg text{font-family:"IBM Plex Sans KR",system-ui,sans-serif;fill:var(--ink)}
+svg .wire{stroke:var(--ink);stroke-width:2.2;fill:none;stroke-linejoin:round}
+svg .flow{stroke:var(--red);stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:0.1 15}
+svg .axis{stroke:var(--muted);stroke-width:1.2}
+svg .gridl{stroke:var(--grid);stroke-width:1}
+@media (prefers-reduced-motion:reduce){.bar-fill{transition:none}}
+
+.hero-curve{width:100%;height:auto;display:block;margin-top:30px}
+.hero-curve .q{stroke:var(--blue);stroke-width:3.5;fill:none;stroke-dasharray:1400;stroke-dashoffset:1400;animation:draw 2.6s cubic-bezier(.3,.6,.4,1) .3s forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.hero-curve .q{animation:none;stroke-dashoffset:0}}
+.stack{display:flex;height:16px;border-radius:4px;overflow:hidden;background:var(--grid)}
+.stack div{height:100%;transition:width .08s linear}
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:14px;color:var(--muted)}
+.legend i.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;font-style:normal}
+.pill{font-size:14px;padding:6px 10px;border-radius:8px;background:color-mix(in srgb,var(--blue) 10%,transparent);border-left:4px solid var(--blue)}
+.sim.one{grid-template-columns:minmax(0,1fr) minmax(250px,.8fr)}
+@media (max-width:820px){.sim.one{grid-template-columns:1fr}}
+
+.sqrt{display:inline-block;position:relative;padding-left:.6em;margin-left:.06em;white-space:nowrap}
+.sqrt::before{content:"";position:absolute;left:0;top:0;bottom:.02em;width:.63em;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24' preserveAspectRatio='none'%3E%3Cpath d='M0 14.2L3.4 12.3L6.9 20.1L11 0H12V1.5H11.95L7.5 23.6H6.3L2.8 15.3L.7 16.3Z'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24' preserveAspectRatio='none'%3E%3Cpath d='M0 14.2L3.4 12.3L6.9 20.1L11 0H12V1.5H11.95L7.5 23.6H6.3L2.8 15.3L.7 16.3Z'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
+.sqrt>span{display:inline-block;border-top:.075em solid currentColor;padding:.1em .1em 0 .05em;line-height:1.15}
+.ss{display:inline-block;vertical-align:-.3em;line-height:1;font-size:.72em;margin-left:.03em;text-align:left}
+.ss>sup,.ss>sub{display:block;vertical-align:0;font-size:1em;line-height:1.08;position:static}
+
+.hero-ro{width:100%;height:auto;display:block;margin-top:24px}
+.toc a{padding:4px 7px}
+.btnrow{display:flex;gap:6px;flex-wrap:wrap}
+.ctl.off{opacity:.4;pointer-events:none}
+.key{max-width:100%}
+sub{padding-right:.07em}
+@media (max-width:600px){.key>span{white-space:normal;min-width:0}}
+table.ana{border-collapse:collapse;width:100%;max-width:760px;margin:14px 0;font-size:15px}
+table.ana th,table.ana td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left}
+table.ana th{color:var(--muted);font-weight:500}
+.tablewrap{overflow-x:auto}
+.bar-track.sgn::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1.5px;background:var(--muted)}
+.tablewrap{margin-top:10px}
+</style>
+</head>
+<body>
+<nav class="bar" aria-label="섹션"><div class="bar-in"><div class="toc" id="toc"></div>
+<a class="langlink" href="thermo2-en.html" hreflang="en" lang="en">English</a></div></nav>
+
+<header class="wrap hero">
+  <p class="credit" data-i18n="credit"></p>
+  <h1 data-i18n="title"></h1>
+  <p class="sub" data-i18n="subtitle"></p>
+  <svg class="hero-ro" id="hero" viewBox="0 0 1000 205" aria-hidden="true"></svg>
+</header>
+
+<main class="wrap">
+<section id="s1"><h2><span class="n">1</span><span data-i18n="h1"></span></h2>
+  <div class="prose"><p data-i18n="p1a"></p><p data-i18n="p1b"></p></div>
+  <div class="key"><span>Δ<i>S</i> = <i>S</i><sub>f</sub> − <i>S</i><sub>i</sub> = ∫<span class="ss"><sup>f</sup><sub>i</sub></span><span class="frac"><span>d<i>Q</i></span><span><i>T</i></span></span></span><span><span data-i18n="k1"></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v1" viewBox="0 0 440 330" role="img" aria-label="구멍을 통한 기체의 자유팽창과 왼쪽 비율"></svg></div><div class="controls" id="c1"></div></div>
+</section>
+<section id="s2"><h2><span class="n">2</span><span data-i18n="h2"></span></h2>
+  <div class="prose"><p data-i18n="p2a"></p><p data-i18n="p2b"></p></div>
+  <div class="key"><span>d<i>Q</i> = <i>p</i> d<i>V</i> + <i>nC</i><sub>V</sub>d<i>T</i></span><span>Δ<i>S</i> = <i>nR</i> ln<span class="frac"><span><i>V</i><sub>f</sub></span><span><i>V</i><sub>i</sub></span></span> + <i>nC</i><sub>V</sub> ln<span class="frac"><span><i>T</i><sub>f</sub></span><span><i>T</i><sub>i</sub></span></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v2" viewBox="0 0 440 250" role="img" aria-label="같은 두 상태를 잇는 두 가역 경로"></svg></div><div class="controls" id="c2"></div></div>
+</section>
+<section id="s3"><h2><span class="n">3</span><span data-i18n="h3"></span></h2>
+  <div class="prose"><p data-i18n="p3a"></p><p data-i18n="p3b"></p></div>
+  <div class="key"><span>Δ<i>S</i><sub>gas</sub> = −<span class="frac"><span>|<i>Q</i>|</span><span><i>T</i></span></span></span><span>Δ<i>S</i><sub>res</sub> = +<span class="frac"><span>|<i>Q</i>|</span><span><i>T</i></span></span></span><span>Δ<i>S</i> ≥ 0 (<span data-i18n="closed"></span>)</span></div>
+  <div class="sim"><div class="viz"><svg id="v3" viewBox="0 0 440 240" role="img" aria-label="열저장고 위의 기체 또는 자유팽창과 엔트로피 막대"></svg><div class="bars" id="bars3"></div></div><div class="controls" id="c3"></div></div>
+</section>
+<section id="s4"><h2><span class="n">4</span><span data-i18n="h4"></span></h2>
+  <div class="prose"><p data-i18n="p4a"></p><p data-i18n="p4b"></p><p data-i18n="p4c"></p></div>
+  <div class="key"><span>|<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>| = <i>W</i></span><span><span class="frac"><span>|<i>Q</i><sub>H</sub>|</span><span><i>T</i><sub>H</sub></span></span> = <span class="frac"><span>|<i>Q</i><sub>L</sub>|</span><span><i>T</i><sub>L</sub></span></span></span><span>Δ<i>S</i> = <span class="frac"><span>|<i>Q</i><sub>H</sub>|</span><span><i>T</i><sub>H</sub></span></span> − <span class="frac"><span>|<i>Q</i><sub>L</sub>|</span><span><i>T</i><sub>L</sub></span></span> = 0</span></div>
+  <div class="sim"><div class="viz"><svg id="v4" viewBox="0 0 440 272" role="img" aria-label="원통과 함께 그린 p–V 그림의 Carnot 순환"></svg></div><div class="controls" id="c4"></div></div>
+</section>
+<section id="s5"><h2><span class="n">5</span><span data-i18n="h5"></span></h2>
+  <div class="prose"><p data-i18n="p5a"></p><p data-i18n="p5b"></p></div>
+  <div class="key"><span><i>ε</i> = <span class="frac"><span>|<i>W</i>|</span><span>|<i>Q</i><sub>H</sub>|</span></span> = 1 − <span class="frac"><span>|<i>Q</i><sub>L</sub>|</span><span>|<i>Q</i><sub>H</sub>|</span></span></span><span><i>ε</i><sub>C</sub> = 1 − <span class="frac"><span><i>T</i><sub>L</sub></span><span><i>T</i><sub>H</sub></span></span></span><span><i>ε</i><sub>real</sub> ≤ 1 − <span class="frac"><span><i>T</i><sub>L</sub></span><span><i>T</i><sub>H</sub></span></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v5" viewBox="0 0 440 288" role="img" aria-label="Carnot의 T–S 그림과 기관 개요도"></svg></div><div class="controls" id="c5"></div></div>
+</section>
+<section id="s6"><h2><span class="n">6</span><span data-i18n="h6"></span></h2>
+  <div class="prose"><p data-i18n="p6a"></p><p data-i18n="p6b"></p></div>
+  <div class="key"><span><i>K</i> = <span class="frac"><span>|<i>Q</i><sub>L</sub>|</span><span>|<i>W</i>|</span></span></span><span><i>K</i><sub>C</sub> = <span class="frac"><span>|<i>Q</i><sub>L</sub>|</span><span>|<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>|</span></span> = <span class="frac"><span><i>T</i><sub>L</sub></span><span><i>T</i><sub>H</sub> − <i>T</i><sub>L</sub></span></span></span><span>Δ<i>S</i> = −<span class="frac"><span>|<i>Q</i>|</span><span><i>T</i><sub>L</sub></span></span> + <span class="frac"><span>|<i>Q</i>|</span><span><i>T</i><sub>H</sub></span></span> &lt; 0</span></div>
+  <div class="sim"><div class="viz"><svg id="v6" viewBox="0 0 440 270" role="img" aria-label="냉동기 개요도와 Carnot 작동계수"></svg></div><div class="controls" id="c6"></div></div>
+</section>
+<section id="s7"><h2><span class="n">7</span><span data-i18n="h7"></span></h2>
+  <div class="prose"><p data-i18n="p7"></p></div>
+  <div class="key"><span><i>ε</i><sub>X</sub> = <span class="frac"><span>|<i>W</i>|</span><span>|<i>Q′</i><sub>H</sub>|</span></span> &gt; <i>ε</i><sub>C</sub> = <span class="frac"><span>|<i>W</i>|</span><span>|<i>Q</i><sub>H</sub>|</span></span></span><span><i>Q</i> = |<i>Q</i><sub>H</sub>| − |<i>Q′</i><sub>H</sub>| &gt; 0</span></div>
+  <div class="sim"><div class="viz"><svg id="v7" viewBox="0 0 440 270" role="img" aria-label="Carnot 냉동기를 돌리는 기관 X"></svg></div><div class="controls" id="c7"></div></div>
+</section>
+<section id="s8"><h2><span class="n">8</span><span data-i18n="h8"></span></h2>
+  <div class="prose"><p data-i18n="p8a"></p><p data-i18n="p8b"></p></div>
+  <div class="key"><span><i>W</i> = <span class="frac"><span><i>N</i>!</span><span><i>n</i><sub>1</sub>! <i>n</i><sub>2</sub>!</span></span></span><span><span data-i18n="k8"></span></span></div>
+  <div class="sim"><div class="viz"><svg id="v8" viewBox="0 0 440 300" role="img" aria-label="두 방에 나뉜 분자와 경우의 수"></svg></div><div class="controls" id="c8"></div></div>
+</section>
+<section id="s9"><h2><span class="n">9</span><span data-i18n="h9"></span></h2>
+  <div class="prose"><p data-i18n="p9a"></p><p data-i18n="p9b"></p></div>
+  <div class="key"><span><i>S</i> = <i>k</i> ln <i>W</i></span><span>ln <i>N</i>! ≈ <i>N</i> ln <i>N</i> − <i>N</i></span></div>
+  <div class="sim"><div class="viz"><svg id="v9" viewBox="0 0 440 250" role="img" aria-label="분자가 많을 때의 중심 배열 봉우리"></svg></div><div class="controls" id="c9"></div></div>
+</section>
+</main>
+<footer class="wrap"><p data-i18n="credit"></p></footer>
+
+<script>
+const I18N={
+ko:{
+ nav:["비가역성","엔트로피 변화","열역학 제2법칙","Carnot 순환","열효율","냉동기","Carnot보다 좋은 기관?","미시상태","S = k ln W"],
+ credit:"<b>이상훈(Sang Hoon Lee)</b>의 강의 노트를 바탕으로 <b>Claude Opus 5.5</b>가 만들었습니다.",
+ title:"엔트로피와 열역학 제2법칙",
+ subtitle:"시간은 왜 한쪽으로만 흐를까: 엔트로피, 열역학 제2법칙, 열기관과 냉동기, Carnot 한계, 그리고 미시상태를 세어 보는 엔트로피의 통계적 의미까지 직접 만져 보는 인터랙티브 데모입니다. 조절 막대를 움직이면 화면의 모든 값이 바로 다시 계산됩니다.",
+ play:"재생",pause:"일시정지",reset:"다시 시작",path:"경로",closed:"닫힌계",Tf6:"최종 온도 <i>T</i><sub>f</sub>",Vf6:"최종 부피 <i>V</i><sub>f</sub>",
+ TH4:"고온 열저장고 <i>T</i><sub>H</sub>",TL4:"저온 열저장고 <i>T</i><sub>L</sub>",rQH4:"<i>T</i><sub>H</sub>에서 흡수한 |<i>Q</i><sub>H</sub>|",rQL4:"<i>T</i><sub>L</sub>로 방출한 |<i>Q</i><sub>L</sub>|",rW4:"일 <i>W</i> = |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>|",
+ vOK:"가능, 비가역 (Δ<i>S</i> &gt; 0)",vRev:"가역: Carnot 한계 (Δ<i>S</i> = 0)",vNo:"불가능: 열역학 제2법칙 위배 (Δ<i>S</i> &lt; 0)",vPerf:"영구기관: 불가능 (Δ<i>S</i> &lt; 0)",vPerfR:"영구냉동기: 불가능 (Δ<i>S</i> &lt; 0)",rV5:"판정",rDS5:"한 순환 동안 열저장고의 Δ<i>S</i>",rEc5:"Carnot 효율 <i>ε</i><sub>C</sub> = 1 − <i>T</i><sub>L</sub>/<i>T</i><sub>H</sub>",
+
+ h1:"시간의 흐름과 비가역성",
+ p1a:"시간의 흐름: <b>비가역성</b>(irreversibility) → 특정 순서(“올바른 방향”)로만 일어나고 반대 방향(“틀린 방향”)으로는 절대 일어나지 않는 일방통행식 과정. 따뜻한 커피잔을 쥐면 손이 따뜻해지고 커피잔은 식습니다. 손이 더 차가워지고 커피잔이 더 따뜻해지는 건 생각하기 어렵지요. 그런데 이것은 열역학 제1법칙(에너지 보존법칙)에는 위배되지 않습니다. <b>자유팽창</b>도 마찬가지입니다: 잠금 마개를 열면 기체가 진공으로 퍼지고, 자발적으로 다시 모이는 일은 일어나지 않습니다. 이러한 비가역성을 나타내는 물리량이 <b>엔트로피</b>(entropy) <i>S</i>입니다.",
+ p1b:"<b>엔트로피 가설</b>: <b>닫힌계</b>(closed system, 에너지가 보존됨: 열역학 제1법칙)에서 비가역 과정이 일어나면 계의 엔트로피 <i>S</i>는 항상 증가하며 결코 감소하지 않습니다 → <b>시간의 화살</b>(arrow of time). 계의 엔트로피는 내부에너지처럼 계의 <b>상태함수</b>입니다: 계가 현재 어떤 상태인지에 따라 결정되고, 그 상태에 이르는 방법과는 무관합니다. 계가 초기상태 <i>i</i>에서 최종상태 <i>f</i>로 갈 때 계의 엔트로피 변화는 Δ<i>S</i> = <i>S</i><sub>f</sub> − <i>S</i><sub>i</sub> = ∫d<i>Q</i>/<i>T</i>(엔트로피 변화의 정의)입니다. <i>Q</i>는 외부에서 계로 또는 계에서 외부로 열로써 전달된 에너지이고, d<i>Q</i>/<i>T</i>는 열전달이 발생한 온도에도 의존합니다. 아래에서 분자들은 왼쪽에서 출발합니다. 모두 다시 왼쪽에 모일 확률은 <i>N</i>개의 분자에 대해 2<sup>−<i>N</i></sup>이고, 실제 기체의 <i>N</i>은 10<sup>23</sup> 정도입니다.",
+ k1:"닫힌계: 비가역 과정에서 Δ<i>S</i> &gt; 0",N1:"분자 수 <i>N</i>",left1:"왼쪽",right1:"오른쪽",open1:"잠금 마개 열림",closed1:"잠금 마개 닫힘",frac1:"왼쪽에 있는 비율",
+ rF1:"왼쪽에 있는 비율",rW1:"현재 배열의 ln <i>W</i>",rP1:"모두 왼쪽에 있을 확률",rS1:"1 mol의 부피가 두 배가 될 때 Δ<i>S</i>: <i>R</i> ln 2",
+
+ h2:"엔트로피 변화",
+ p2a:"자유팽창은 비가역 과정이라서 그 경로를 따라 d<i>Q</i>/<i>T</i>를 적분할 수 없습니다: 중간 상태들이 평형상태가 아니기 때문입니다. 하지만 엔트로피는 상태함수이므로, 같은 두 상태를 잇는 <b>어떤</b> 과정에 대해서도 Δ<i>S</i>는 같습니다. 가역 과정을 하나 골라서 그 경로를 따라 적분하면 됩니다. 이상기체에서 열역학 제1법칙은 d<i>E</i><sub>int</sub> = d<i>Q</i> − d<i>W</i>이므로 d<i>Q</i> = <i>p</i> d<i>V</i> + <i>nC</i><sub>V</sub>d<i>T</i>입니다. <i>pV</i> = <i>nRT</i>를 쓰고 <i>T</i>로 나누면 d<i>Q</i>/<i>T</i> = <i>nR</i> d<i>V</i>/<i>V</i> + <i>nC</i><sub>V</sub> d<i>T</i>/<i>T</i>.",
+ p2b:"각 항을 임의의 초기상태 <i>i</i>에서 임의의 최종상태 <i>f</i>까지 적분하면 Δ<i>S</i> = <i>S</i><sub>f</sub> − <i>S</i><sub>i</sub> = <i>nR</i> ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>) + <i>nC</i><sub>V</sub> ln(<i>T</i><sub>f</sub>/<i>T</i><sub>i</sub>)입니다. 등온과정 또는 자유팽창에서는 <i>T</i><sub>i</sub> = <i>T</i><sub>f</sub>이므로 Δ<i>S</i> = <i>nR</i> ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>): 따라서 <i>V</i><sub>i</sub> &lt; <i>V</i><sub>f</sub>면 Δ<i>S</i> &gt; 0, <i>V</i><sub>i</sub> &gt; <i>V</i><sub>f</sub>면 Δ<i>S</i> &lt; 0. 기체가 <b>자발적으로</b> 팽창하면 Δ<i>S</i> &gt; 0: 자연스러운 과정! 아래에서 단원자 기체 1 mol이 <i>i</i>(10 L, 300 K)에서 <i>f</i>까지 두 가지 가역 경로로 가고, 시뮬레이션이 각 경로를 따라 d<i>Q</i>/<i>T</i>를 수치적으로 더합니다. 둘 다 같은 Δ<i>S</i>이고 공식과 같습니다.",
+ p2A:"A: 등온 후 등적",p2B:"B: 등적 후 등온",
+ rT1_2:"<i>nR</i> ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>)",rT2_2:"<i>nC</i><sub>V</sub> ln(<i>T</i><sub>f</sub>/<i>T</i><sub>i</sub>)",rSA2:"A를 따라 ∫d<i>Q</i>/<i>T</i>",rSB2:"B를 따라 ∫d<i>Q</i>/<i>T</i>",rFr2:"같은 <i>f</i>로 가는 자유팽창",frN2:"<i>T</i><sub>f</sub> = <i>T</i><sub>i</sub>이고 <i>V</i><sub>f</sub> &gt; <i>V</i><sub>i</sub>일 때만 가능",
+
+ h3:"열역학 제2법칙",
+ p3a:"등온과정: 기체가 열저장고 위에 있고, 납알을 올려서 가역적으로 압축합니다. 열이 기체에서 열저장고로 전달되므로 기체의 엔트로피 변화는 Δ<i>S</i><sub>gas</sub> = −|<i>Q</i>|/<i>T</i> &lt; 0입니다. 엔트로피 가설 위배?! 아닙니다: 닫힌계가 아니므로 위배되지 않습니다! 기체는 열저장고와 상호작용하고, 열저장고는 기체로부터 열 |<i>Q</i>|만큼 받았으므로 Δ<i>S</i><sub>res</sub> = |<i>Q</i>|/<i>T</i> &gt; 0입니다. 닫힌 (기체 + 열저장고) 전체 계의 엔트로피 변화는 Δ<i>S</i><sub>gas</sub> + Δ<i>S</i><sub>res</sub> = 0: <b>가역 과정</b>!",
+ p3b:"<b>엔트로피 가설(업데이트!)</b>: 비가역 과정에서는 닫힌계의 엔트로피가 증가하며, 가역 과정에서는 일정합니다. 즉, 엔트로피는 결코 감소하지 않습니다 ⇒ <b>열역학 제2법칙</b>(the second law of thermodynamics): Δ<i>S</i> ≥ 0(닫힌계). 등호는 가역 과정(이상적인 경우), 부등호는 비가역 과정입니다. 자유팽창에서는 무엇과도 열을 주고받지 않으므로 주위의 엔트로피는 변하지 않지만, 기체의 엔트로피는 <i>nR</i> ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>)만큼 증가합니다: 전체가 증가합니다.",
+ md3:"과정",m3c:"가역 등온압축",m3e:"가역 등온팽창",m3f:"자유팽창 (비가역)",T3:"온도 <i>T</i>",r3:"부피의 비 (큰 쪽 / 작은 쪽)",
+ res3:"열저장고",ins3:"단열: 주위와 열을 주고받지 않음",bSg:"Δ<i>S</i><sub>기체</sub>",bSr:"Δ<i>S</i><sub>열저장고</sub> (주위)",bSt:"Δ<i>S</i><sub>전체</sub>",
+ rQ3:"기체로 들어온 열 <i>Q</i>",rSg3:"Δ<i>S</i><sub>gas</sub>",rSr3:"Δ<i>S</i><sub>res</sub>",rSt3:"Δ<i>S</i><sub>전체</sub>",rV3:"과정의 종류",rev3:"가역: Δ<i>S</i><sub>전체</sub> = 0",irr3:"비가역: Δ<i>S</i><sub>전체</sub> &gt; 0",
+
+ h4:"열기관과 Carnot 순환",
+ p4a:"일상생활의 엔트로피: 기관(engines). <b>열기관</b>(heat engine)은 주위에서 열에너지를 끄집어내어 일을 수행하는 장치입니다. 핵심은 <b>작동물질</b>(working substance)이고, 지속적으로 일하려면 작동물질이 <b>순환과정</b>(cyclic process)으로 작동되어야 합니다. <b>Carnot(“카르노”) 기관</b>은 <i>pV</i> = <i>nRT</i>를 따르는 이상기체를 작동물질로 하는 이상적인 기관입니다. 모든 과정은 가역적이고, 마찰이나 막흐름(turbulence) 등에 의한 에너지 손실은 발생하지 않습니다. 한 번의 순환과정 동안 작동물질은 높은 온도 <i>T</i><sub>H</sub>의 열저장고에서 열 |<i>Q</i><sub>H</sub>|를 흡수하며, 낮은 온도 <i>T</i><sub>L</sub>의 열저장고로 열 |<i>Q</i><sub>L</sub>|을 방출합니다. 그 열의 차이만큼이 작동물질이 한 일 <i>W</i>가 됩니다(순환과정을 거친 작동물질은 상태가 제자리로 돌아와야 하므로 Δ<i>E</i><sub>int</sub> = 0, 따라서 열역학 제1법칙에 의해 |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>| = <i>W</i>). 작동물질은 원통에 갇힌 이상기체이고, 피스톤이 동력을 전달합니다. 벽은 단열이고 바닥은 <i>T</i><sub>H</sub> 또는 <i>T</i><sub>L</sub>의 열저장고, 또는 단열입니다.",
+ p4b:"4단계를 거쳐 제자리로 돌아오는 순환과정: (1) <i>a</i> → <i>b</i>: 높은 온도 <i>T</i><sub>H</sub>의 열저장고와 접촉하여 |<i>Q</i><sub>H</sub>|만큼의 열을 작동물질이 흡수, 부피가 <i>V</i><sub>a</sub>에서 <i>V</i><sub>b</sub>로 늘어나는 동안 온도가 <i>T</i><sub>H</sub>로 유지되는 등온팽창. Δ<i>E</i><sub>int</sub> = 0 → |<i>Q</i><sub>H</sub>| = |<i>W</i><sub>a→b</sub>|, 기체의 부피가 증가했으므로 기체가 양의 일을 했음. (2) <i>b</i> → <i>c</i>: 단열상태에서 부피가 <i>V</i><sub>b</sub>에서 <i>V</i><sub>c</sub>로 바뀌는 단열팽창. <i>Q</i> = 0이므로 Δ<i>E</i><sub>int</sub> = −<i>W</i><sub>b→c</sub>인데 기체가 양의 일을 했으므로 Δ<i>E</i><sub>int</sub> &lt; 0 ⇒ 기체의 온도가 <i>T</i><sub>L</sub>이 될 때까지 낮아짐. (3) <i>c</i> → <i>d</i>: 낮은 온도 <i>T</i><sub>L</sub>의 열저장고와 접촉하여 |<i>Q</i><sub>L</sub>|만큼의 열을 열저장고가 흡수, 부피가 <i>V</i><sub>c</sub>에서 <i>V</i><sub>d</sub>로 줄어드는 동안 온도가 <i>T</i><sub>L</sub>로 유지되는 등온압축. |<i>Q</i><sub>L</sub>| = |<i>W</i><sub>c→d</sub>|, 음의 일. (4) <i>d</i> → <i>a</i>: 단열상태에서 부피가 <i>V</i><sub>d</sub>에서 <i>V</i><sub>a</sub>로 바뀌는 단열압축. 기체가 음의 일을 했으므로 Δ<i>E</i><sub>int</sub> &gt; 0 ⇒ 기체의 온도가 <i>T</i><sub>H</sub>가 될 때까지 높아짐. <i>a</i>로 돌아오면 ΔE = 0이므로 |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>| = <i>W</i>: 알짜 일, 폐곡선 내부 색칠된 부분의 면적.",
+ p4c:"Carnot 기관에서 일어나는 두 개의 가역적 열전달, 즉 <i>T</i><sub>H</sub>, <i>T</i><sub>L</sub>에서 작동물질의 엔트로피 변화 ⇒ 알짜 엔트로피 변화 Δ<i>S</i> = Δ<i>S</i><sub>H</sub> + Δ<i>S</i><sub>L</sub> = |<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub> − |<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub>(에너지가 작동물질에 더해짐: 엔트로피 증가 / 에너지가 작동물질에서 빠져나감: 엔트로피 감소). 엔트로피는 상태함수이므로 Δ<i>S</i> = 0이어야 하고, <b>|<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub> = |<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub></b>. <i>T</i><sub>H</sub> &gt; <i>T</i><sub>L</sub>이므로 |<i>Q</i><sub>H</sub>| &gt; |<i>Q</i><sub>L</sub>|, <i>W</i> = |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>| &gt; 0(<i>T</i><sub>H</sub> &gt; <i>T</i><sub>L</sub>이면 기체가 양의 일을 하게 됨). (시뮬레이션은 단원자 기체 1 mol을 씁니다.)",
+ r4:"팽창비 <i>V</i><sub>b</sub>/<i>V</i><sub>a</sub>",st4_0:"a → b: T_H에서 등온팽창",st4_1:"b → c: 단열팽창",st4_2:"c → d: T_L에서 등온압축",st4_3:"d → a: 단열압축",
+ rSt4:"단계",rSH4:"|<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub>",rSL4:"|<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub>",rE4:"효율 <i>W</i>/|<i>Q</i><sub>H</sub>|",
+
+ h5:"열효율, T–S 그림, 실제 기관",
+ p5a:"온도–엔트로피 그림으로 나타낸 Carnot 기관의 순환과정은 직사각형입니다: <i>a</i> → <i>b</i>는 온도 일정, 엔트로피 증가; <i>b</i> → <i>c</i>는 엔트로피 일정, 온도 감소; <i>c</i> → <i>d</i>는 온도 일정, 엔트로피 감소; <i>d</i> → <i>a</i>는 엔트로피 일정, 온도 증가. 기관의 목적: 높은 온도 <i>T</i><sub>H</sub>의 열저장고에서 뽑아낸 열에너지 |<i>Q</i><sub>H</sub>|를 최대한 일로 변환시키는 것. <b>열효율</b>(thermal efficiency)은 <i>ε</i> = (기체로부터 얻은 에너지)/(높은 온도 <i>T</i><sub>H</sub>의 열저장고가 공급한 에너지) = |<i>W</i>|/|<i>Q</i><sub>H</sub>|입니다. 이상적인 (Carnot) 기관의 경우 |<i>W</i>| = |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>|이므로 <i>ε</i> = 1 − |<i>Q</i><sub>L</sub>|/|<i>Q</i><sub>H</sub>|이고, 엔트로피 식에 의해 |<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub> = |<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub>이므로 <b><i>ε</i> = 1 − <i>T</i><sub>L</sub>/<i>T</i><sub>H</sub></b>(Carnot 기관의 효율)입니다.",
+ p5b:"열저장고의 엔트로피 변화: Δ<i>S</i><sub>res</sub> = −|<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub> + |<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub>(열저장고 입장에서는 고온 쪽은 열을 잃고 저온 쪽은 열을 얻음). 전체 계의 엔트로피 변화 Δ<i>S</i>(= 0, 작동물질은 여전히 순환과정) + Δ<i>S</i><sub>res</sub> ≥ 0(열역학 제2법칙)이므로 −|<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub> + |<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub> ≥ 0, 즉 |<i>Q</i><sub>L</sub>|/|<i>Q</i><sub>H</sub>| ≥ <i>T</i><sub>L</sub>/<i>T</i><sub>H</sub>. 열저장고에서 실제로 엔트로피가 증가할 수 있는 실제 기관의 열효율은 <i>ε</i><sub>real</sub> = 1 − |<i>Q</i><sub>L</sub>|/|<i>Q</i><sub>H</sub>| ≤ 1 − <i>T</i><sub>L</sub>/<i>T</i><sub>H</sub> = <i>ε</i>(이상적인 Carnot 기관의 열효율)입니다. ※ <b>실제 기관의 열효율은 언제나 Carnot 기관의 효율보다 낮으며, 이것은 열역학 제2법칙과 동치이다</b>(Δ<i>S</i> + Δ<i>S</i><sub>res</sub> ≥ 0). <i>T</i><sub>L</sub> &gt; 0이라면, 즉 <i>T</i><sub>L</sub>이 절대영도가 되지 않는 이상 열효율은 100%가 될 수 없습니다. 즉 열에너지 |<i>Q</i><sub>H</sub>| 전부를 일 |<i>W</i>|로 바꾸는 것은 불가능합니다 ⇒ <b>영구기관(perfect engine)은 없다!</b> 예: 물에서 열에너지를 뽑아서 프로펠러를 돌려 다른 연료 없이 배를 동작시킴, 주변 공기에서 열에너지를 뽑아서 차를 움직이기. 이런 것이 불가능하기 때문에 영구기관은 불가능하고, 이런 특허를 내거나 하는 것은 모두 사기입니다. 아래에서 한 순환에 |<i>Q</i><sub>H</sub>| = 1000 J을 받는 기관의 효율을 정하고 열역학 제2법칙의 판정을 보세요.",
+ e5:"내 기관의 효율 <i>ε</i>",carnotTS:"T–S 그림으로 나타낸 Carnot 순환",yourEng:"내 기관, 한 순환당",
+
+ h6:"냉동기",
+ p6a:"<b>냉동기</b>(refrigerator)는 저온 열저장고에서 고온 열저장고로 에너지를 전달합니다(냉장고, 에어컨). Carnot 기관의 역과정으로 작동하므로, 열이나 일로 전달되는 모든 에너지는 Carnot 기관의 반대 방향으로 전달됩니다. 이상적인 냉동기는 모든 과정이 가역적이고, 마찰이나 막흐름 등에 의한 에너지 손실은 발생하지 않습니다: <b>Carnot 냉동기</b>. 냉동기의 효율 K = (얻는 열)/(하는 일) = |<i>Q</i><sub>L</sub>|/|<i>W</i>|(<b>작동계수</b>, coefficient of performance). Carnot 냉동기에서 |<i>W</i>| = |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>|이고, Carnot 기관과 마찬가지로 엔트로피 식으로부터 |<i>Q</i><sub>H</sub>|/<i>T</i><sub>H</sub> = |<i>Q</i><sub>L</sub>|/<i>T</i><sub>L</sub>이므로 <i>K</i><sub>C</sub> = |<i>Q</i><sub>L</sub>|/(|<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>|) = <i>T</i><sub>L</sub>/(<i>T</i><sub>H</sub> − <i>T</i><sub>L</sub>)(냉동기의 작동계수)입니다.",
+ p6b:"<i>K</i><sub>C</sub>는 <i>T</i><sub>L</sub>과 <i>T</i><sub>H</sub>의 차이가 작을수록 커집니다 → 열기관 효율과 반대 ⇒ 실내외 온도의 차이가 클수록 효율이 떨어져서 에어컨의 효율이 떨어집니다(안타깝게도). <b>영구냉동기</b>: 차가운 곳에서 뜨거운 곳으로 아무 일도 하지 않고 열을 모두 전달 → 이런 건 불가능합니다!!! (역시 열역학 제2법칙과 동치) 차가운 열저장고의 엔트로피 변화는 −|<i>Q</i>|/<i>T</i><sub>L</sub>, 뜨거운 열저장고의 엔트로피 변화는 +|<i>Q</i>|/<i>T</i><sub>H</sub>이므로 전체 엔트로피 변화 Δ<i>S</i> = −|<i>Q</i>|/<i>T</i><sub>L</sub> + |<i>Q</i>|/<i>T</i><sub>H</sub>인데, <i>T</i><sub>H</sub> &gt; <i>T</i><sub>L</sub>이므로 Δ<i>S</i> &lt; 0 ⇒ 열역학 제2법칙 위배! 아래 냉동기는 한 순환에 차가운 쪽에서 |<i>Q</i><sub>L</sub>| = 1000 J을 뽑아냅니다.",
+ TH6:"바깥 (고온) <i>T</i><sub>H</sub>",TL6:"안쪽 (저온) <i>T</i><sub>L</sub>",K6:"내 냉동기의 작동계수 <i>K</i>",pf6:"영구냉동기 (일 없음)",yourRef:"내 냉동기, 한 순환당",perfRef:"영구냉동기",
+ rKc6:"Carnot <i>K</i><sub>C</sub> = <i>T</i><sub>L</sub>/(<i>T</i><sub>H</sub> − <i>T</i><sub>L</sub>)",
+
+ h7:"Carnot 기관보다 효율이 좋은 기관은 없다",
+ p7:"Carnot 기관보다 효율이 더 좋은 기관 X가 있다고 가정하면, <i>ε</i><sub>X</sub> &gt; <i>ε</i><sub>C</sub>(X의 효율 &gt; Carnot 기관의 효율). 이렇게 X에서 뽑은 일 <i>W</i>로 작동하는 Carnot 냉동기를 옆에 붙입니다. 기관 X와 같은 높은 온도 <i>T</i><sub>H</sub>의 열원, 낮은 온도 <i>T</i><sub>L</sub>의 열원 사이에서 작동합니다. <i>ε</i><sub>X</sub> = |<i>W</i>|/|<i>Q′</i><sub>H</sub>| &gt; <i>ε</i><sub>C</sub> = |<i>W</i>|/|<i>Q</i><sub>H</sub>|(Carnot 냉동기가 기관으로 사용될 때의 효율)이므로 |<i>Q</i><sub>H</sub>| &gt; |<i>Q′</i><sub>H</sub>|. 일 <i>W</i>가 같으므로 |<i>Q′</i><sub>H</sub>| − |<i>Q′</i><sub>L</sub>| = <i>W</i>, |<i>Q</i><sub>H</sub>| − |<i>Q</i><sub>L</sub>| = <i>W</i>. 따라서 이 둘을 합친 장치는 <i>Q</i> = |<i>Q</i><sub>H</sub>| − |<i>Q′</i><sub>H</sub>| &gt; 0이라는 열을 낮은 온도 <i>T</i><sub>L</sub>의 열원에서 뽑아서 높은 온도 <i>T</i><sub>H</sub>의 열원으로 <b>일 없이</b> 보내는 영구냉동기가 됩니다(<i>W</i>가 이제 내부 에너지 흐름이므로 외부와 관계없음) ⇒ 열역학 제2법칙에 위배됨! 아래에서 기관 X는 한 순환에 <i>W</i> = 500 J을 만듭니다. 효율을 Carnot 값보다 크게 하면 합친 장치가 영구냉동기로 바뀝니다.",
+ eX7:"기관 X의 효율 <i>ε</i><sub>X</sub>",engX:"기관 X",carRef:"Carnot 냉동기",net7ok:"알짜: 열이 고온 → 저온 (문제없음)",
+ rQhx7:"X가 가져간 |<i>Q′</i><sub>H</sub>|",rQh7:"냉동기가 보낸 |<i>Q</i><sub>H</sub>|",rNet7:"일 없이 저온 → 고온으로 옮겨진 알짜 열",
+
+ h8:"통계역학적 관점에서 본 엔트로피",
+ p8a:"기체의 거시적인 특성을 미시적 또는 분자적 거동으로 설명하는 것이 <b>통계역학</b>(statistical mechanics)적 설명입니다. 예: 단열된 상자에 든 구별할 수 없는 6개의 동일한 기체 분자들. 두 방의 부피가 같으면, 어떤 순간에 한 분자가 왼쪽 방이나 오른쪽 방에 있을 확률은 같습니다. <i>n</i><sub>1</sub>: 왼쪽에 있는 분자의 수, <i>n</i><sub>2</sub>: 오른쪽에 있는 분자의 수. 수학적으로, <i>N</i>개의 분자를 왼쪽에 <i>n</i><sub>1</sub>개, 오른쪽에 <i>n</i><sub>2</sub>개 배치하는 경우의 수는 <i>W</i> = <i>N</i>!/(<i>n</i><sub>1</sub>! <i>n</i><sub>2</sub>!)가지입니다(<i>N</i>!: 처음에 <i>N</i>개 중 하나 선택, 다음에 <i>N</i> − 1개 중 하나, …; <i>n</i><sub>1</sub>!: 왼쪽에 들어간 것들끼리 구분이 안 됨; <i>n</i><sub>2</sub>!: 오른쪽에 들어간 것들끼리 구분이 안 됨). 6개 분자를 순서대로 배치한 후 칸막이를 어디에 하나 치는 문제와 같습니다. <i>N</i> = 6이면 배열 I~VII의 경우의 수(미시상태의 수)는 1, 6, 15, 20, 15, 6, 1로 모두 64가지입니다.",
+ p8b:"통계역학의 기본 가정: <b>모든 미시상태는 동일한 확률을 갖는다</b>. 따라서 총 64가지 미시상태는 모두 동일한 확률로 가능합니다. 하지만 <i>n</i><sub>1</sub> = 3, <i>n</i><sub>2</sub> = 3인 IV라는 이름붙인 배열이 미시상태를 가장 많이 갖고 있으므로 확률적으로 <b>가장 있음직한 배열</b>(most probable configuration)입니다 → 두 방에 분자가 고르게 분포하는 것이 가장 확률이 높습니다(열적 평형상태에서). 아래에서는 매 순간 무작위로 고른 분자 하나가 반대쪽으로 옮겨 갑니다. 막대는 <i>W</i>(<i>n</i><sub>1</sub>)이고, 점은 각 배열이 실제로 나타난 횟수를 같은 총합으로 맞춘 것입니다.",
+ k8:"모든 미시상태는 동일한 확률",N8:"분자 수 <i>N</i>",visits8:"점: 실제로 나타난 횟수",
+ rN8:"배열 <i>n</i><sub>1</sub> : <i>n</i><sub>2</sub>",rW8:"경우의 수 <i>W</i>",rS8:"엔트로피 <i>S</i> = <i>k</i> ln <i>W</i>",rP8:"확률 <i>W</i>/2<sup><i>N</i></sup>",rT8:"전체 미시상태의 수 2<sup><i>N</i></sup>",
+
+ h9:"Boltzmann 엔트로피",
+ p9a:"<i>N</i>이 점점 커지면 거의 모든 미시상태가 두 방에 고르게 분포하는 배열에 속합니다: <b>중심 배열 봉우리</b>(central configuration peak)가 매우 좁아집니다. <b>Boltzmann 엔트로피</b>: <i>S</i> = <i>k</i> ln <i>W</i>. 엔트로피는 배열에 대한 경우의 수에 로그를 취한 값에 Boltzmann 상수 <i>k</i>를 곱한 것과 같습니다. 경우의 수가 가장 큰 배열 = 엔트로피가 가장 큰 배열입니다.",
+ p9b:"⇒ (자연계 전체를 포함한) 고립계는 가장 경우의 수가 큰, 무질서한 방향으로 갑니다(비가역 과정). 빈에 있는 Boltzmann의 묘비에는 이 식이 <i>S</i> = <i>k</i> log <i>W</i>로 새겨져 있습니다. 열역학과 맞는지 확인해 봅시다: 기체가 자유팽창으로 부피가 두 배가 되면 각 분자가 있을 수 있는 곳이 두 배가 되므로 <i>W</i>가 2<sup><i>N</i></sup>배가 되고, Δ<i>S</i> = <i>k</i> ln 2<sup><i>N</i></sup> = <i>Nk</i> ln 2 = <i>nR</i> ln 2: 엔트로피 변화 공식의 <i>nR</i> ln(<i>V</i><sub>f</sub>/<i>V</i><sub>i</sub>)와 정확히 같습니다. 큰 <i>N</i>에서는 Stirling 근사 ln <i>N</i>! ≈ <i>N</i> ln <i>N</i> − <i>N</i>을 씁니다.",
+ e9:"분자 수 <i>N</i> (10의 거듭제곱)",w9:"W / W_max",pl9:"왼쪽 방에 있는 분자의 비율",peak9:"중심 배열 봉우리",
+ rNN9:"<i>N</i>",rWd9:"봉우리의 폭 (표준편차)",rP9:"왼쪽에 51% 이상 있을 확률",rS9:"중심 배열의 <i>S</i> = <i>k</i> ln <i>W</i>",rSn9:"<i>n</i> = <i>N</i>/<i>N</i><sub>A</sub>일 때 <i>nR</i> ln 2 (부피 두 배 자유팽창)"
+}
+
+};
+
+const lang="ko";const L=I18N[lang];const t=k=>(L[k]??k);
+const $=s=>document.querySelector(s);const NS="http://www.w3.org/2000/svg";
+function E(tag,attrs={},parent){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e}
+function H(tag,attrs={},parent,html){const e=document.createElement(tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(html!=null)e.innerHTML=html;if(parent)parent.appendChild(e);return e}
+const reduceMotion=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const MU0=4*Math.PI*1e-7,EC=1.602e-19;
+const minus=s=>String(s).replace(/-/g,"−");
+function trimP(x,sig){let s=x.toPrecision(sig);if(s.includes("e"))s=String(+s);return s}
+function si(x,unit,sig=3){if(!isFinite(x))return"∞ "+unit;if(Math.abs(x)<1e-30)return"0 "+unit;
+  const P=[[1e9,"G"],[1e6,"M"],[1e3,"k"],[1,""],[1e-3,"m"],[1e-6,"μ"],[1e-9,"n"],[1e-12,"p"],[1e-15,"f"]];const a=Math.abs(x);
+  for(const[f,p]of P){if(a>=f*0.99995)return minus(trimP(x/f,sig))+" "+p+unit}return minus(sci(x))+" "+unit}
+const SUPS={"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"};
+function sci(x,sig=3){if(!isFinite(x))return"∞";if(x===0)return"0";const a=Math.abs(x);if(a>=1e-2&&a<1e4)return minus(trimP(x,sig));
+  let e=Math.floor(Math.log10(a));let m=+(x/10**e).toPrecision(sig);if(Math.abs(m)>=10){m=+(m/10).toPrecision(sig);e++}
+  return minus(String(m))+"×10"+String(e).split("").map(c=>SUPS[c]).join("")}
+const fx=(x,d=2)=>minus((Math.abs(x)<0.5*10**-d?0:x).toFixed(d));
+const S={};
+function slider(box,{id,key,min,max,step,value,fmt,on}){const d=H("div",{class:"ctl"},box);const l=H("label",{for:id},d);H("span",{"data-i18n":key},l);const o=H("output",{},l);
+  const inp=H("input",{type:"range",id,min,max,step,value},d);const upd=()=>{S[id]=+inp.value;o.textContent=fmt(S[id])};inp.addEventListener("input",()=>{upd();on()});upd();return inp}
+function seg(box,{id,key,options,value,on}){const d=H("div",{class:"ctl"},box);H("span",{class:"lbl","data-i18n":key},d);const g=H("div",{class:"seg",role:"group"},d);S[id]=value;
+  options.forEach(([v,k])=>{const b=H("button",{type:"button","data-i18n":k,"aria-pressed":String(v===value)},g);b.addEventListener("click",()=>{S[id]=v;g.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));on()})})}
+function check(box,{id,key,value,on}){const lab=H("label",{class:"check"},box);const cb=H("input",{type:"checkbox",id},lab);cb.checked=value;S[id]=value;H("span",{"data-i18n":key},lab);cb.addEventListener("change",()=>{S[id]=cb.checked;on()})}
+function button(box,key,fn){const b=H("button",{type:"button",class:"btn","data-i18n":key},box);b.addEventListener("click",fn);return b}
+function readout(box,rows){const dl=H("dl",{class:"read"},box);const out={};rows.forEach(([id,key])=>{H("dt",{"data-i18n":key},dl);out[id]=H("dd",{},dl)});return out}
+function txt(g,x,y,s,a={}){const e=E("text",Object.assign({x,y,"font-size":14},a),g);s=String(s);
+  if(!s.includes("_")){e.textContent=s;return e}const parts=s.split(/_([A-Za-z0-9]+)/);let shifted=false;
+  parts.forEach((p,k)=>{if(!p)return;const sub=k%2===1;const ts=E("tspan",{},e);if(sub){ts.setAttribute("dy","4");ts.setAttribute("font-size","0.72em");shifted=true}else if(shifted){ts.setAttribute("dy","-4");shifted=false}ts.textContent=p});return e}
+function arrow(g,x1,y1,x2,y2,col,w=2.5,hd=9){const dx=x2-x1,dy=y2-y1,Ln=Math.hypot(dx,dy);if(Ln<2)return;const ux=dx/Ln,uy=dy/Ln;const h=Math.min(hd,Ln*0.6);const bx=x2-ux*h,by=y2-uy*h;
+  E("line",{x1,y1,x2:bx,y2:by,stroke:col,"stroke-width":w,"stroke-linecap":"round"},g);E("polygon",{points:`${x2},${y2} ${bx-uy*h*.55},${by+ux*h*.55} ${bx+uy*h*.55},${by-ux*h*.55}`,fill:col},g)}
+function dotOut(g,x,y,r,col){E("circle",{cx:x,cy:y,r,fill:"var(--panel)",stroke:col,"stroke-width":2},g);E("circle",{cx:x,cy:y,r:Math.max(1.6,r*.28),fill:col},g)}
+function crossIn(g,x,y,r,col){E("circle",{cx:x,cy:y,r,fill:"var(--panel)",stroke:col,"stroke-width":2},g);const s=r*.6;E("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:col,"stroke-width":2},g)}
+function xMark(g,x,y,s,col,op=1){E("path",{d:`M${x-s},${y-s}L${x+s},${y+s}M${x-s},${y+s}L${x+s},${y-s}`,stroke:col,"stroke-width":1.8,opacity:op},g)}
+function dMark(g,x,y,r,col,op=1){E("circle",{cx:x,cy:y,r,fill:col,opacity:op},g)}
+function graph(g,{l=60,r=420,t0=24,b=130,xmin,xmax,ymin,ymax,xt,yt,xl,yl}){const X=v=>l+(v-xmin)/(xmax-xmin)*(r-l),Y=v=>b-(v-ymin)/(ymax-ymin)*(b-t0);
+  xt.forEach(([v,s])=>{E("line",{x1:X(v),x2:X(v),y1:t0,y2:b,class:"gridl"},g);txt(g,X(v),b+15,s,{"text-anchor":"middle","font-size":11,fill:"var(--muted)"})});
+  yt.forEach(([v,s])=>{E("line",{x1:l,x2:r,y1:Y(v),y2:Y(v),class:"gridl"},g);txt(g,l-6,Y(v)+4,s,{"text-anchor":"end","font-size":11,fill:"var(--muted)"})});
+  E("line",{x1:l,x2:r,y1:Y(Math.max(ymin,Math.min(ymax,0))),y2:Y(Math.max(ymin,Math.min(ymax,0))),class:"axis"},g);E("line",{x1:l,x2:l,y1:t0,y2:b,class:"axis"},g);
+  if(xl)txt(g,(l+r)/2,b+30,xl,{"text-anchor":"middle","font-size":12,fill:"var(--muted)"});if(yl)txt(g,l,t0-9,yl,{"font-size":12,fill:"var(--muted)"});return{X,Y}}
+const deg=x=>x*Math.PI/180;
+const anims=[];
+let NOW=0;const G0=9.8;
+function setSlider(el,v){el.value=v;el.dispatchEvent(new Event("input"))}
+function bars(el,rows,max){el.innerHTML=rows.map(([k,v,cl,unit])=>`<div class="bar-row"><span class="bar-cap">${t(k)}</span><div class="bar-track"><div class="bar-fill" style="width:${Math.max(0,Math.min(100,Math.abs(v)/(max||1)*100))}%;background:${cl}"></div></div><span class="v">${unit(v)}</span></div>`).join("")}
+function block(g,x,y,w,h,col,label){E("rect",{x,y,width:w,height:h,rx:4,fill:col,opacity:.85,stroke:"var(--ink)","stroke-width":1.2},g);if(label)txt(g,x+w/2,y+h/2+5,label,{"text-anchor":"middle","font-weight":700,fill:"#fff"})}
+function farrow(g,x,y,dx,dy,col,label,lx=6,ly=-6){if(Math.hypot(dx,dy)<2)return;arrow(g,x,y,x+dx,y+dy,col,3,10);if(label)txt(g,x+dx+lx,y+dy+ly,label,{"font-size":13,"font-weight":700,fill:col,stroke:"var(--panel)","stroke-width":4,"stroke-linejoin":"round","paint-order":"stroke"})}
+function playBtn(c,obj,key="playing"){const b=H("button",{type:"button",class:"btn"},c);const upd=()=>b.innerHTML=t(obj[key]?"pause":"play");b.addEventListener("click",()=>{obj[key]=!obj[key];upd()});obj._btn=upd;return b}
+const N=x=>fx(x,2)+" N";
+
+(function(){const toc=$("#toc");L.nav.forEach((n,k)=>{const a=H("a",{href:"#s"+(k+1)},toc);a.innerHTML=`<span>${k+1}</span>${n}`})})();
+function coil(g,x0,x1,y,col="var(--magenta)",n=10,R=11){const lead=8,a=x0+lead,b=x1-lead,L=Math.max(4,b-a);const N=n*24,tilt=Math.min(0.42*R,0.45*L/n);
+  const pt=k=>{const t=2*Math.PI*n*k/N;return[a+L*k/N+tilt*Math.sin(t),y-R*Math.cos(t),Math.sin(t)]};
+  const segs=[[],[]];let prev=pt(0);for(let k=1;k<=N;k++){const p=pt(k);segs[(prev[2]+p[2])/2>=0?1:0].push(`M${prev[0].toFixed(1)},${prev[1].toFixed(1)}L${p[0].toFixed(1)},${p[1].toFixed(1)}`);prev=p}
+  const s=pt(0),e=pt(N);E("path",{d:`M${x0},${y}L${s[0].toFixed(1)},${s[1].toFixed(1)}M${e[0].toFixed(1)},${e[1].toFixed(1)}L${x1},${y}`,fill:"none",stroke:col,"stroke-width":2.2,"stroke-linecap":"round"},g);
+  E("path",{d:segs[0].join(""),fill:"none",stroke:col,"stroke-width":1.6,opacity:.45,"stroke-linecap":"round"},g);
+  E("path",{d:segs[1].join(""),fill:"none",stroke:col,"stroke-width":2.6,"stroke-linecap":"round"},g)}
+
+const tr=k=>(L[k]??k);
+/* ---------- shared helpers for this page ---------- */
+const noop=()=>{};
+const Jx=x=>{const a=Math.abs(x);return a>=1000?fx(x,0)+" J":a>=10?fx(x,1)+" J":(a>=0.01||x===0)?fx(x,3)+" J":si(x,"J")};
+const rads=x=>fx(x,2)+" rad/s",secs=x=>fx(x,2)+" s",mtr=x=>fx(x,2)+" m";
+function transport(c,o,onReset){const br=H("div",{class:"btnrow"},c);playBtn(br,o);o._btn();button(br,"reset",()=>{o.t=0;if(onReset)onReset()});return br}
+function clock(o,dt){if(o.playing)o.t+=dt}
+function win(t,W){const a=Math.max(0,t-W);return[a,a+W]}
+function tTicks(a,b){const r=[];const s=Math.ceil(a-1e-9),e=Math.floor(b+1e-9);for(let k=s;k<=e;k++)r.push([k,String(k)+(k===e?" s":"")]);return r}
+function plot(g,G,f,a,b,col,w=2.5,n=300,ex={}){if(b<=a)return;let d="";for(let k=0;k<=n;k++){const x=a+(b-a)*k/n;d+=(k?"L":"M")+G.X(x).toFixed(1)+","+G.Y(f(x)).toFixed(1)}return E("path",Object.assign({d,fill:"none",stroke:col,"stroke-width":w,"stroke-linejoin":"round"},ex),g)}
+function vcoil(g,cx,y0,y1,col="var(--magenta)",n=9,R=10){const gg=E("g",{transform:`translate(${cx},0) rotate(90)`},g);coil(gg,y0,y1,0,col,n,R)}
+function rk4(s,f,h){const k1=f(s),a=s.map((v,i)=>v+h/2*k1[i]),k2=f(a),b=s.map((v,i)=>v+h/2*k2[i]),k3=f(b),c=s.map((v,i)=>v+h*k3[i]),k4=f(c);return s.map((v,i)=>v+h/6*(k1[i]+2*k2[i]+2*k3[i]+k4[i]))}
+function stepN(s,f,dt,hmax=0.004){const n=Math.max(1,Math.ceil(dt/hmax));for(let i=0;i<n;i++)s=rk4(s,f,dt/n);return s}
+function lbl(g,x,y,s,col,a={}){return txt(g,x,y,s,Object.assign({"font-size":12,fill:col||"var(--muted)",stroke:"var(--panel)","stroke-width":4,"stroke-linejoin":"round","paint-order":"stroke"},a))}
+function dbl(g,x1,y1,x2,y2,col){const mx=(x1+x2)/2,my=(y1+y2)/2;arrow(g,mx,my,x1,y1,col,2,7);arrow(g,mx,my,x2,y2,col,2,7)}
+/* sound: sine tones started only by a button press */
+function Tone(){let ctx=null,g=null,os=[];return{on:false,
+  start(fs){try{ctx=ctx||new(window.AudioContext||window.webkitAudioContext)();if(ctx.resume)ctx.resume();g=ctx.createGain();const t0=ctx.currentTime;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(0.14/fs.length,t0+0.06);g.connect(ctx.destination);
+    os=fs.map(f=>{const o=ctx.createOscillator();o.type="sine";o.frequency.value=Math.max(20,Math.min(4000,f));o.connect(g);o.start();return o});this.on=true}catch(e){this.on=false}},
+  set(fs){if(!this.on)return;os.forEach((o,i)=>o.frequency.setTargetAtTime(Math.max(20,Math.min(4000,fs[i])),ctx.currentTime,0.02))},
+  stop(){if(!this.on)return;g.gain.setTargetAtTime(0,ctx.currentTime,0.03);const o2=os,g2=g;setTimeout(()=>{o2.forEach(o=>{try{o.stop()}catch(e){}});g2.disconnect()},250);os=[];this.on=false}}}
+function _unusedSoundBtn(c,tone,getF){const b=H("button",{type:"button",class:"btn"},c);const upd=()=>b.innerHTML=tr(tone.on?"sndOff":"snd");b.addEventListener("click",()=>{tone.on?tone.stop():tone.start(getF());upd()});upd();return b}
+const PL=()=>!reduceMotion;
+
+
+const R_=8.314,KB=1.381e-23,NA_=6.022e23,SIG=5.670e-8;
+function sel(box,{id,key,options,value,on}){const d=H("div",{class:"ctl"},box);const l=H("label",{for:id,class:"lbl"},d);H("span",{"data-i18n":key},l);const s=H("select",{id},d);options.forEach(([v,k])=>H("option",{value:v,"data-i18n":k},s));s.value=value;S[id]=value;s.addEventListener("change",()=>{S[id]=s.value;on()});return s}
+function tcol(T,lo,hi){const u=Math.max(0,Math.min(1,(T-lo)/(hi-lo)));return `color-mix(in srgb,var(--red) ${Math.round(u*100)}%,var(--blue))`}
+function gauss(){let u=0;while(!u)u=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*Math.random())}
+function makeGas(N,b){const P=[];for(let i=0;i<N;i++)P.push({x:b.x0+4+Math.random()*(b.x1-b.x0-8),y:b.y0+4+Math.random()*(b.y1-b.y0-8),vx:gauss(),vy:gauss(),vz:gauss()});return P}
+function moveGas(P,dt,b,sp,r=2.5,onHit){P.forEach((p,i)=>{p.x+=p.vx*sp*dt;p.y+=p.vy*sp*dt;
+  if(p.x<b.x0+r){p.x=b.x0+r;p.vx=Math.abs(p.vx)}if(p.x>b.x1-r){p.x=b.x1-r;if(p.vx>0&&onHit)onHit(p,i);p.vx=-Math.abs(p.vx)}
+  if(p.y<b.y0+r){p.y=b.y0+r;p.vy=Math.abs(p.vy)}if(p.y>b.y1-r){p.y=b.y1-r;p.vy=-Math.abs(p.vy)}})}
+function drawGas(g,P,col,r=2.6,hl=-1){P.forEach((p,i)=>E("circle",{cx:p.x.toFixed(1),cy:p.y.toFixed(1),r:i===hl?r*1.8:r,fill:i===hl?"var(--red)":col},g))}
+function offCtl(id,off){const el=document.getElementById(id);if(el){const c=el.closest(".ctl");if(c)c.classList.toggle("off",off)}}
+function setOut(id,v){const el=document.getElementById(id);el.value=v;el.dispatchEvent(new Event("input"))}
+function polyLen(P){let L=0;for(let i=1;i<P.length;i++)L+=Math.hypot(P[i][0]-P[i-1][0],P[i][1]-P[i-1][1]);return L}
+function polyAt(P,u){/* point at fraction u of the polyline (in data units, using index arc length) */const n=P.length-1;let tot=0;const seg=[];for(let i=0;i<n;i++){const l=Math.hypot(P[i+1][0]-P[i][0],P[i+1][1]-P[i][1]);seg.push(l);tot+=l}let d=Math.max(0,Math.min(1,u))*tot;for(let i=0;i<n;i++){if(d<=seg[i]||i===n-1){const f=seg[i]?Math.min(1,d/seg[i]):0;return[P[i][0]+(P[i+1][0]-P[i][0])*f,P[i][1]+(P[i+1][1]-P[i][1])*f]}d-=seg[i]}return P[n]}
+function polyPath(G,P){return P.map((q,i)=>(i?"L":"M")+G.X(q[0]).toFixed(1)+","+G.Y(q[1]).toFixed(1)).join("")}
+function workOf(P){let W=0;for(let i=1;i<P.length;i++)W+=(P[i][1]+P[i-1][1])/2*(P[i][0]-P[i-1][0]);return W}
+function sampleFn(f,a,b,n=80){const P=[];for(let i=0;i<=n;i++){const v=a+(b-a)*i/n;P.push([v,f(v)])}return P}
+function sbars(el,rows,max){el.innerHTML=rows.map(([k,v,cl,unit])=>`<div class="bar-row"><span class="bar-cap">${tr(k)}</span><div class="bar-track sgn"><div class="bar-fill" style="position:absolute;top:0;bottom:0;${v>=0?"left:50%":"right:50%"};width:${Math.max(0,Math.min(50,Math.abs(v)/(max||1)*50))}%;background:${cl}"></div></div><span class="v">${unit(v)}</span></div>`).join("")}
+function pctl(x,d=1){return fx(100*x,d)+" %"}
+
+/* ---------- gas in a box with a partition that has an opening ---------- */
+function moveGasPart(P,dt,b,sp,xp,gy0,gy1,open,r=2.4){P.forEach(p=>{const ox=p.x;p.x+=p.vx*sp*dt;p.y+=p.vy*sp*dt;
+  if(p.y<b.y0+r){p.y=b.y0+r;p.vy=Math.abs(p.vy)}if(p.y>b.y1-r){p.y=b.y1-r;p.vy=-Math.abs(p.vy)}
+  if(p.x<b.x0+r){p.x=b.x0+r;p.vx=Math.abs(p.vx)}if(p.x>b.x1-r){p.x=b.x1-r;p.vx=-Math.abs(p.vx)}
+  const through=open&&p.y>gy0+r&&p.y<gy1-r;if(!through){if(ox<=xp&&p.x>xp-r){p.x=xp-r;p.vx=-Math.abs(p.vx)}else if(ox>=xp&&p.x<xp+r){p.x=xp+r;p.vx=Math.abs(p.vx)}}})}
+function lnFact(n){if(n<2)return 0;if(n<170){let s=0;for(let i=2;i<=n;i++)s+=Math.log(i);return s}return n*Math.log(n)-n+0.5*Math.log(2*Math.PI*n)+1/(12*n)}
+function lnW(N,n1){return lnFact(N)-lnFact(n1)-lnFact(N-n1)}
+function drawPartBox(g,b,xp,gy0,gy1,open){E("rect",{x:b.x0-6,y:b.y0-6,width:b.x1-b.x0+12,height:b.y1-b.y0+12,fill:"none",stroke:"var(--copper)","stroke-width":6,opacity:.55},g);E("rect",{x:b.x0,y:b.y0,width:b.x1-b.x0,height:b.y1-b.y0,fill:"none",stroke:"var(--ink)","stroke-width":2},g);
+  E("line",{x1:xp,x2:xp,y1:b.y0,y2:gy0,stroke:"var(--ink)","stroke-width":3},g);E("line",{x1:xp,x2:xp,y1:gy1,y2:b.y1,stroke:"var(--ink)","stroke-width":3},g);if(!open)E("line",{x1:xp,x2:xp,y1:gy0,y2:gy1,stroke:"var(--red)","stroke-width":4},g)}
+
+/* ---------- hero: free expansion, and the entropy that only goes up ---------- */
+const SH={t:0,P:null,hist:[],acc:0};const BH={x0:30,x1:560,y0:24,y1:176},XPH=295;
+function drawHero(dt){if(!reduceMotion)SH.t+=dt;if(SH.t>16||!SH.P){SH.t=0;SH.hist=[];SH.P=makeGas(110,{x0:BH.x0+4,x1:XPH-4,y0:BH.y0+4,y1:BH.y1-4})}
+  const open=SH.t>1.2;moveGasPart(SH.P,reduceMotion?0:dt,BH,60,XPH,72,128,open);const g=$("#hero");g.innerHTML="";const fade=SH.t>15?16-SH.t:1;const gg=E("g",{opacity:Math.max(0,fade).toFixed(2)},g);
+  drawPartBox(gg,BH,XPH,72,128,open);drawGas(gg,SH.P,"var(--blue)",3);const N=SH.P.length,nL=SH.P.filter(p=>p.x<XPH).length;
+  SH.acc+=dt;if(SH.acc>0.1||!SH.hist.length){SH.acc=0;SH.hist.push([SH.t,lnW(N,nL)/lnW(N,N/2)])}
+  const X=t=>640+t*21,Y=v=>176-v*140;E("line",{x1:640,x2:980,y1:176,y2:176,stroke:"var(--muted)"},g);E("line",{x1:640,x2:640,y1:20,y2:176,stroke:"var(--muted)"},g);txt(g,980,194,"t",{"text-anchor":"end","font-style":"italic",fill:"var(--muted)"});txt(g,624,32,"S",{"font-style":"italic",fill:"var(--muted)"});
+  E("line",{x1:640,x2:980,y1:Y(1),y2:Y(1),stroke:"var(--muted)","stroke-dasharray":"4 4"},g);E("path",{d:SH.hist.map((h,i)=>(i?"L":"M")+X(h[0]).toFixed(1)+","+Y(h[1]).toFixed(1)).join(""),fill:"none",stroke:"var(--red)","stroke-width":3.5,opacity:Math.max(0,fade).toFixed(2)},g);
+  txt(g,980,Y(1)-8,"ΔS > 0",{"text-anchor":"end","font-size":18,"font-weight":700,fill:"var(--red)"})}
+
+/* ---------- 1. irreversibility: free expansion ---------- */
+const S1={t:0,playing:PL(),P:null,hist:[],acc:0};const B1={x0:30,x1:410,y0:30,y1:170},XP1=220;
+function reset1(){S1.P=null;S1.hist=[];S1.t=0}
+(function(){const c=$("#c1");slider(c,{id:"N1",key:"N1",min:10,max:200,step:10,value:60,fmt:v=>String(v),on:reset1});transport(c,S1,reset1);S.ro1=readout(c,[["f","rF1"],["w","rW1"],["p","rP1"],["s","rS1"]])})();
+function draw1(dt){if(!S1.P)S1.P=makeGas(S.N1,{x0:B1.x0+4,x1:XP1-4,y0:B1.y0+4,y1:B1.y1-4});clock(S1,dt);const open=S1.t>1;if(S1.playing)moveGasPart(S1.P,dt,B1,60,XP1,78,122,open);
+  const N=S1.P.length,nL=S1.P.filter(p=>p.x<XP1).length;S1.acc+=dt;if(S1.playing&&(S1.acc>0.1||!S1.hist.length)){S1.acc=0;S1.hist.push([S1.t,nL/N])}if(S1.hist.length>400)S1.hist.shift();
+  const g=$("#v1");g.innerHTML="";drawPartBox(g,B1,XP1,78,122,open);drawGas(g,S1.P,"var(--blue)",3);txt(g,(B1.x0+XP1)/2,B1.y1+20,tr("left1")+": "+nL,{"text-anchor":"middle","font-size":12});txt(g,(XP1+B1.x1)/2,B1.y1+20,tr("right1")+": "+(N-nL),{"text-anchor":"middle","font-size":12});
+  txt(g,XP1,B1.y0-10,tr(open?"open1":"closed1"),{"text-anchor":"middle","font-size":11,fill:"var(--muted)"});
+  const a=Math.max(0,S1.t-20),G=graph(g,{l:60,r:420,t0:214,b:310,xmin:a,xmax:a+20,ymin:0,ymax:1,xt:tTicks(a,a+20).filter((x,i)=>x[0]%5===0||i===0),yt:[[0,"0"],[0.5,"1/2"],[1,"1"]],yl:tr("frac1")});
+  if(S1.hist.length>1)E("path",{d:polyPath(G,S1.hist),fill:"none",stroke:"var(--blue)","stroke-width":2.5},g);
+  const ro=S.ro1;ro.f.textContent=pctl(nL/N,0);ro.w.textContent=fx(lnW(N,nL),2);ro.p.innerHTML="2<sup>−"+N+"</sup> ≈ "+sci(2**-N);ro.s.textContent=fx(R_*Math.log(2),2)+" J/K"}
+
+/* ---------- 2. change in entropy: a state function ---------- */
+const S2={t:0,playing:PL()};const VI2=10,TI2=300,CV2=1.5*R_;
+function paths2(){const Vf=S.Vf2,Tf=S.Tf2;const A=[];for(let i=0;i<=60;i++)A.push([VI2+(Vf-VI2)*i/60,TI2]);for(let i=1;i<=30;i++)A.push([Vf,TI2+(Tf-TI2)*i/30]);
+  const B=[];for(let i=0;i<=30;i++)B.push([VI2,TI2+(Tf-TI2)*i/30]);for(let i=1;i<=60;i++)B.push([VI2+(Vf-VI2)*i/60,Tf]);return{A,B}}
+function dS2(path){/* numerically add dQ/T with dQ = n Cv dT + p dV along the path (V,T) */let s=0;for(let i=1;i<path.length;i++){const[V0,T0]=path[i-1],[V1,T1]=path[i],Tm=(T0+T1)/2,Vm=(V0+V1)/2,p=R_*Tm/Vm;s+=(CV2*(T1-T0)+p*(V1-V0))/Tm}return s}
+(function(){const c=$("#c2");seg(c,{id:"pt2",key:"path",options:[["A","p2A"],["B","p2B"]],value:"A",on:()=>{S2.t=0}});slider(c,{id:"Vf2",key:"Vf6",min:5,max:40,step:1,value:20,fmt:v=>v+" L",on:noop});
+  slider(c,{id:"Tf2",key:"Tf6",min:150,max:600,step:10,value:400,fmt:v=>v+" K",on:noop});transport(c,S2);S.ro2=readout(c,[["a","rT1_2"],["b","rT2_2"],["A","rSA2"],["B","rSB2"],["f","rFr2"]])})();
+function draw2(dt){clock(S2,dt);const P=paths2(),k=S.pt2,toPV=pp=>pp.map(([V,T])=>[V,R_*T/V]);const g=$("#v2");g.innerHTML="";const pm=Math.max(R_*TI2/VI2,R_*S.Tf2/VI2,R_*S.Tf2/S.Vf2)*1.15;
+  const G=graph(g,{l:60,r:420,t0:26,b:236,xmin:0,xmax:42,ymin:0,ymax:pm,xt:[[0,"0"],[10,"10"],[20,"20"],[30,"30"],[40,"40 L"]],yt:[[0,"0"],[Math.round(pm*0.9/10)*10,Math.round(pm*0.9/10)*10+" kPa"]],yl:"p",xl:"V"});
+  [["A","var(--blue)"],["B","var(--green)"]].forEach(([kk,cl])=>{const pp=toPV(P[kk]);E("path",{d:polyPath(G,pp),fill:"none",stroke:cl,"stroke-width":kk===k?3.4:1.6,opacity:kk===k?1:.45},g);const m=pp[kk==="A"?30:15];lbl(g,G.X(m[0])+5,G.Y(m[1])-6,kk,cl,{"font-weight":700})});
+  const sel_=toPV(P[k]),q=polyAt(sel_,Math.min(1,(S2.t/4)%1.3));E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  [[VI2,R_*TI2/VI2,"i"],[S.Vf2,R_*S.Tf2/S.Vf2,"f"]].forEach(([v,p,s])=>{E("circle",{cx:G.X(v),cy:G.Y(p),r:4.5,fill:"var(--ink)"},g);lbl(g,G.X(v)+7,G.Y(p)-7,s,"var(--ink)",{"font-style":"italic","font-weight":700})});
+  const t1=R_*Math.log(S.Vf2/VI2),t2=CV2*Math.log(S.Tf2/TI2),ro=S.ro2;ro.a.textContent=fx(t1,3)+" J/K";ro.b.textContent=fx(t2,3)+" J/K";ro.A.textContent=fx(dS2(P.A),3)+" J/K";ro.B.textContent=fx(dS2(P.B),3)+" J/K";
+  ro.f.innerHTML=Math.abs(S.Tf2-TI2)<1e-9&&S.Vf2>VI2?fx(t1,3)+" J/K":tr("frN2")}
+
+/* ---------- 3. the second law: system plus reservoir ---------- */
+const S3={t:0,playing:PL(),P:null};
+(function(){const c=$("#c3");seg(c,{id:"md3",key:"md3",options:[["comp","m3c"],["exp","m3e"],["free","m3f"]],value:"comp",on:()=>{S3.t=0;S3.P=null}});
+  slider(c,{id:"T3",key:"T3",min:250,max:600,step:10,value:300,fmt:v=>v+" K",on:noop});slider(c,{id:"r3",key:"r3",min:1.2,max:4,step:0.1,value:2,fmt:v=>v.toFixed(1),on:()=>{S3.P=null}});
+  transport(c,S3,()=>{S3.P=null});S.ro3=readout(c,[["Q","rQ3"],["g","rSg3"],["r","rSr3"],["t","rSt3"],["v","rV3"]])})();
+function draw3(dt){clock(S3,dt);const m=S.md3,T=S.T3,r=S.r3,u=Math.min(1,(S3.t/4)%1.4);let Sg,Sr,Q;if(m==="comp"){Q=-R_*T*Math.log(r);Sg=-R_*Math.log(r);Sr=-Sg}else if(m==="exp"){Q=R_*T*Math.log(r);Sg=R_*Math.log(r);Sr=-Sg}else{Q=0;Sg=R_*Math.log(r);Sr=0}
+  const g=$("#v3");g.innerHTML="";
+  if(m==="free"){const b={x0:60,x1:380,y0:50,y1:190},xp=60+320/r;if(!S3.P)S3.P=makeGas(50,{x0:b.x0+4,x1:xp-4,y0:b.y0+4,y1:b.y1-4});const open=S3.t>0.6;moveGasPart(S3.P,dt,b,55,xp,100,140,open);drawPartBox(g,b,xp,100,140,open);drawGas(g,S3.P,"var(--blue)",3);
+    txt(g,220,226,tr("ins3"),{"text-anchor":"middle","font-size":12,fill:"var(--muted)"})}
+  else{const V=m==="comp"?r+(1-r)*u:1+(r-1)*u,x0=140,x1=300,yb=200,yp=yb-30-V*32;if(!S3.P)S3.P=makeGas(36,{x0:x0+4,x1:x1-4,y0:yb-60,y1:yb-4});moveGas(S3.P,dt,{x0:x0+3,x1:x1-3,y0:yp+3,y1:yb-3},16*Math.sqrt(T/300),2.4);
+    E("path",{d:`M${x0-10},${yp-60} V${yb} M${x1+10},${yb} V${yp-60}`,fill:"none",stroke:"var(--copper)","stroke-width":10,opacity:.55},g);E("path",{d:`M${x0},${yp-60} V${yb} H${x1} V${yp-60}`,fill:"none",stroke:"var(--ink)","stroke-width":2.5},g);drawGas(g,S3.P,"var(--ink)",2.4);
+    E("rect",{x:x0+2,y:yp-8,width:x1-x0-4,height:8,fill:"var(--muted)"},g);const shot=Math.round(8+(m==="comp"?u:1-u)*10);for(let i=0;i<shot;i++)E("circle",{cx:x0+30+(i%9)*12,cy:yp-14-Math.floor(i/9)*9,r:4,fill:"var(--muted)"},g);
+    E("rect",{x:x0-40,y:yb,width:x1-x0+80,height:26,rx:4,style:`fill:${tcol(T,250,600)}`,opacity:.75},g);txt(g,(x0+x1)/2,yb+18,tr("res3")+" T = "+T+" K",{"text-anchor":"middle","font-size":12,"font-weight":700,fill:"#fff"});
+    if(m==="comp")farrow(g,x1+40,yb-30,0,40,"var(--red)","|Q|",6,4);else farrow(g,x1+40,yb+10,0,-40,"var(--red)","|Q|",6,4)}
+  const mx=Math.max(Math.abs(Sg),Math.abs(Sr),1);sbars($("#bars3"),[["bSg",Sg,"var(--blue)",x=>fx(x,2)+" J/K"],["bSr",Sr,"var(--red)",x=>fx(x,2)+" J/K"],["bSt",Sg+Sr,"var(--magenta)",x=>fx(x,2)+" J/K"]],mx);
+  const ro=S.ro3;ro.Q.textContent=Jx(Q);ro.g.textContent=fx(Sg,3)+" J/K";ro.r.textContent=fx(Sr,3)+" J/K";ro.t.textContent=fx(Sg+Sr,3)+" J/K";ro.v.innerHTML=tr(m==="free"?"irr3":"rev3")}
+
+/* ---------- 4. the Carnot cycle ---------- */
+const S4={t:0,playing:PL(),P:null};const VA4=10;
+function carnot(){const TH=S.TH4,TL=Math.min(S.TL4,TH-10),r=S.r4,k=(TH/TL)**1.5,Va=VA4,Vb=r*Va,Vc=Vb*k,Vd=Va*k;
+  const ab=sampleFn(v=>R_*TH/v,Va,Vb,40),bc=sampleFn(v=>R_*TH*Vb**(5/3)/(Vb*v**(5/3)),Vb,Vc,40),cd=sampleFn(v=>R_*TL/v,Vc,Vd,40),da=sampleFn(v=>R_*TH*Va**(5/3)/(Va*v**(5/3)),Vd,Va,40);
+  return{TH,TL,r,Va,Vb,Vc,Vd,legs:[ab,bc,cd,da],QH:R_*TH*Math.log(r),QL:R_*TL*Math.log(r)}}
+(function(){const c=$("#c4");slider(c,{id:"TH4",key:"TH4",min:400,max:800,step:10,value:600,fmt:v=>v+" K",on:noop});slider(c,{id:"TL4",key:"TL4",min:200,max:390,step:10,value:300,fmt:v=>v+" K",on:noop});
+  slider(c,{id:"r4",key:"r4",min:1.5,max:3,step:0.1,value:2,fmt:v=>v.toFixed(1),on:noop});transport(c,S4);S.ro4=readout(c,[["st","rSt4"],["QH","rQH4"],["QL","rQL4"],["W","rW4"],["sh","rSH4"],["sl","rSL4"],["e","rE4"]])})();
+function draw4(dt){clock(S4,dt);const C=carnot(),u=(S4.t/12)%1,leg=Math.floor(u*4),f=u*4-leg,L=C.legs[leg],q=polyAt(L,f),T=q[0]*q[1]/R_;const g=$("#v4");g.innerHTML="";
+  const all=C.legs.flat(),pm=R_*C.TH/C.Va*1.12,vm=C.Vc*1.08;const G=graph(g,{l:200,r:425,t0:44,b:236,xmin:0,xmax:vm,ymin:0,ymax:pm,xt:[[0,"0"],[Math.round(vm/2),String(Math.round(vm/2))],[Math.round(vm*0.95),Math.round(vm*0.95)+" L"]],yt:[[0,"0"],[Math.round(pm*0.9/10)*10,Math.round(pm*0.9/10)*10+" kPa"]],yl:"p",xl:"V"});
+  E("path",{d:polyPath(G,all)+"Z",fill:"var(--copper)","fill-opacity":.25},g);const cols=["var(--red)","var(--green)","var(--blue)","var(--green)"];C.legs.forEach((l,i)=>E("path",{d:polyPath(G,l),fill:"none",stroke:cols[i],"stroke-width":i===leg?3.6:2,opacity:i===leg?1:.6},g));
+  [["a",C.legs[0][0]],["b",C.legs[1][0]],["c",C.legs[2][0]],["d",C.legs[3][0]]].forEach(([s,p])=>{E("circle",{cx:G.X(p[0]),cy:G.Y(p[1]),r:4,fill:"var(--ink)"},g);lbl(g,G.X(p[0])+6,G.Y(p[1])-6,s,"var(--ink)",{"font-style":"italic","font-weight":700})});
+  E("circle",{cx:G.X(q[0]),cy:G.Y(q[1]),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  const x0=40,x1=150,yb=210,yp=yb-24-150*q[0]/vm;if(!S4.P)S4.P=makeGas(26,{x0:x0+4,x1:x1-4,y0:yb-40,y1:yb-4});moveGas(S4.P,dt,{x0:x0+3,x1:x1-3,y0:yp+3,y1:yb-3},12*Math.sqrt(T/300),2.4);
+  E("path",{d:`M${x0},36 V${yb} H${x1} V36`,fill:"none",stroke:"var(--ink)","stroke-width":2.5},g);drawGas(g,S4.P,"var(--ink)",2.4);E("rect",{x:x0+2,y:yp-8,width:x1-x0-4,height:8,fill:"var(--muted)"},g);
+  const base=leg===0?"var(--red)":leg===2?"var(--blue)":"var(--copper)";E("rect",{x:x0-16,y:yb+2,width:x1-x0+32,height:14,rx:3,fill:base,opacity:.75},g);
+  if(leg===0)farrow(g,(x0+x1)/2,yb+40,0,-30,"var(--red)","Q_H",8,10);if(leg===2)farrow(g,(x0+x1)/2,yb+6,0,30,"var(--blue)","Q_L",8,10);
+  txt(g,14,16,tr("st4_"+leg),{"font-size":12,"font-weight":700});txt(g,(x0+x1)/2,28,"T = "+fx(T,0)+" K",{"text-anchor":"middle","font-size":11,fill:"var(--muted)"});
+  const ro=S.ro4;ro.st.innerHTML=tr("st4_"+leg).replace(/_([A-Z])/g,"<sub>$1</sub>");ro.QH.textContent=Jx(C.QH);ro.QL.textContent=Jx(C.QL);ro.W.textContent=Jx(C.QH-C.QL);ro.sh.textContent=fx(C.QH/C.TH,3)+" J/K";ro.sl.textContent=fx(C.QL/C.TL,3)+" J/K";ro.e.textContent=pctl(1-C.QL/C.QH,1)}
+
+/* ---------- shared: engine / refrigerator schematic ---------- */
+function schem(g,x,y,w,TH,TL,QH,W,QL,mode,sc){/* mode "eng": QH down, W out right, QL down; "ref": QL up, W in, QH up */const cx=x+w/2,bw=Math.min(w,150);
+  E("rect",{x:cx-bw/2,y,width:bw,height:30,rx:8,fill:"var(--red)",opacity:.35,stroke:"var(--red)"},g);txt(g,cx,y+20,"T_H = "+fx(TH,0)+" K",{"text-anchor":"middle","font-size":12,"font-weight":700});
+  E("rect",{x:cx-bw/2,y:y+190,width:bw,height:30,rx:8,fill:"var(--blue)",opacity:.35,stroke:"var(--blue)"},g);txt(g,cx,y+210,"T_L = "+fx(TL,0)+" K",{"text-anchor":"middle","font-size":12,"font-weight":700});
+  E("rect",{x:cx-34,y:y+86,width:68,height:48,rx:8,fill:"var(--copper)",opacity:.35,stroke:"var(--copper)"},g);
+  const wd=v=>Math.max(1.5,Math.min(22,Math.abs(v)*sc));const eng=mode==="eng";
+  if(eng){if(QH>0.5)arrow(g,cx,y+32,cx,y+84,"var(--magenta)",wd(QH),Math.max(10,wd(QH)*1.4));if(QL>0.5)arrow(g,cx,y+136,cx,y+188,"var(--magenta)",wd(QL),Math.max(10,wd(QL)*1.4));if(W>0.5)arrow(g,cx+36,y+110,cx+96,y+110,"var(--green)",wd(W),Math.max(10,wd(W)*1.4))}
+  else{if(QL>0.5)arrow(g,cx,y+188,cx,y+136,"var(--magenta)",wd(QL),Math.max(10,wd(QL)*1.4));if(QH>0.5)arrow(g,cx,y+84,cx,y+32,"var(--magenta)",wd(QH),Math.max(10,wd(QH)*1.4));if(W>0.5)arrow(g,cx+96,y+110,cx+36,y+110,"var(--green)",wd(W),Math.max(10,wd(W)*1.4))}
+  lbl(g,cx-14,y+62,"|Q_H| = "+fx(QH,0)+" J","var(--ink)",{"text-anchor":"end","font-size":11});lbl(g,cx-14,y+166,"|Q_L| = "+fx(QL,0)+" J","var(--ink)",{"text-anchor":"end","font-size":11});lbl(g,cx+40,y+102,"W = "+fx(W,0)+" J","var(--green)",{"font-size":11})}
+function verdict(dS,eqTol){return Math.abs(dS)<eqTol?"vRev":dS>0?"vOK":"vNo"}
+
+/* ---------- 5. efficiency, the T–S diagram, and real engines ---------- */
+(function(){const c=$("#c5");slider(c,{id:"TH5",key:"TH4",min:300,max:1000,step:10,value:600,fmt:v=>v+" K",on:noop});slider(c,{id:"TL5",key:"TL4",min:200,max:500,step:10,value:300,fmt:v=>v+" K",on:noop});
+  slider(c,{id:"e5",key:"e5",min:0,max:100,step:1,value:30,fmt:v=>v+" %",on:noop});S.ro5=readout(c,[["ec","rEc5"],["W","rW4"],["QL","rQL4"],["dS","rDS5"],["v","rV5"]])})();
+function draw5(){const TH=S.TH5,TL=Math.min(S.TL5,TH-10),QH=1000,e=S.e5/100,W=e*QH,QL=QH-W,ec=1-TL/TH,dS=-QH/TH+QL/TL;const g=$("#v5");g.innerHTML="";
+  const S0=1,S1=S0+QH/TH,G=graph(g,{l:50,r:205,t0:30,b:240,xmin:0,xmax:S1+1.2,ymin:0,ymax:1100,xt:[[S0,"S_a"],[S1,"S_b"]],yt:[[TL,"T_L"],[TH,"T_H"]],yl:"T",xl:"S"});
+  E("rect",{x:G.X(S0),y:G.Y(TH),width:G.X(S1)-G.X(S0),height:G.Y(TL)-G.Y(TH),fill:"var(--copper)","fill-opacity":.3,stroke:"var(--green)","stroke-width":2.5},g);
+  [[S0,TH,S1,TH],[S1,TH,S1,TL],[S1,TL,S0,TL],[S0,TL,S0,TH]].forEach(([a,b,c,d])=>arrow(g,G.X((a+c)/2)-(c-a?Math.sign(c-a)*6:0),G.Y((b+d)/2)+(d-b?Math.sign(d-b)*6:0),G.X((a+c)/2)+(c-a?Math.sign(c-a)*6:0),G.Y((b+d)/2)-(d-b?Math.sign(d-b)*6:0),"var(--green)",2.5,9));
+  lbl(g,(G.X(S0)+G.X(S1))/2,(G.Y(TH)+G.Y(TL))/2+4,"W","var(--copper)",{"text-anchor":"middle","font-weight":700});lbl(g,(G.X(S0)+G.X(S1))/2,G.Y(TH)-8,"Q_H = T_HΔS","var(--red)",{"text-anchor":"middle","font-size":11});lbl(g,(G.X(S0)+G.X(S1))/2,G.Y(TL)+16,"Q_L = T_LΔS","var(--blue)",{"text-anchor":"middle","font-size":11});
+  txt(g,128,284,tr("carnotTS"),{"text-anchor":"middle","font-size":11,fill:"var(--muted)"});schem(g,230,20,200,TH,TL,QH,W,QL,"eng",0.02);txt(g,330,262,tr("yourEng"),{"text-anchor":"middle","font-size":11,fill:"var(--muted)"});
+  const ro=S.ro5;ro.ec.textContent=pctl(ec,1);ro.W.textContent=Jx(W);ro.QL.textContent=Jx(QL);ro.dS.textContent=fx(dS,3)+" J/K";ro.v.innerHTML=tr(e>=0.999?"vPerf":verdict(dS,0.0015))}
+
+/* ---------- 6. refrigerators ---------- */
+(function(){const c=$("#c6");slider(c,{id:"TH6",key:"TH6",min:280,max:320,step:1,value:305,fmt:v=>v+" K ("+(v-273)+" °C)",on:noop});slider(c,{id:"TL6",key:"TL6",min:250,max:300,step:1,value:280,fmt:v=>v+" K ("+(v-273)+" °C)",on:noop});
+  slider(c,{id:"K6",key:"K6",min:0.5,max:30,step:0.1,value:5,fmt:v=>v.toFixed(1),on:noop});check(c,{id:"pf6",key:"pf6",value:false,on:noop});S.ro6=readout(c,[["kc","rKc6"],["W","rW4"],["QH","rQH4"],["dS","rDS5"],["v","rV5"]])})();
+function draw6(){const TH=S.TH6,TL=Math.min(S.TL6,TH-1),QL=1000,perf=S.pf6,K=S.K6,W=perf?0:QL/K,QH=QL+W,Kc=TL/(TH-TL),dS=-QL/TL+QH/TH;offCtl("K6",perf);const g=$("#v6");g.innerHTML="";
+  schem(g,10,20,200,TH,TL,QH,W,QL,"ref",0.012);txt(g,110,262,tr(perf?"perfRef":"yourRef"),{"text-anchor":"middle","font-size":11,fill:"var(--muted)"});
+  const G=graph(g,{l:260,r:425,t0:30,b:236,xmin:0,xmax:60,ymin:0,ymax:60,xt:[[0,"0"],[30,"30"],[60,"60 K"]],yt:[[0,"0"],[30,"30"],[60,"60"]],yl:"K_C = T_L/(T_H − T_L)",xl:"T_H − T_L"});
+  plot(g,G,d=>Math.min(60,TL/Math.max(d,0.01)),TL/60,60,"var(--blue)",2.5,200);const d=TH-TL;E("circle",{cx:G.X(Math.min(60,d)),cy:G.Y(Math.min(60,Kc)),r:6,fill:"var(--red)",stroke:"var(--panel)","stroke-width":2},g);
+  if(!perf)E("line",{x1:G.X(0),x2:G.X(60),y1:G.Y(Math.min(60,K)),y2:G.Y(Math.min(60,K)),stroke:"var(--magenta)","stroke-dasharray":"5 4"},g);lbl(g,G.X(58),G.Y(Math.min(58,perf?58:K))-6,perf?"K = ∞":"K = "+K.toFixed(1),"var(--magenta)",{"text-anchor":"end","font-size":11});
+  const ro=S.ro6;ro.kc.textContent=fx(Kc,2);ro.W.textContent=Jx(W);ro.QH.textContent=Jx(QH);ro.dS.textContent=fx(dS,3)+" J/K";ro.v.innerHTML=tr(perf?"vPerfR":verdict(dS,0.0015))}
+
+/* ---------- 7. no engine beats Carnot ---------- */
+(function(){const c=$("#c7");slider(c,{id:"TH7",key:"TH4",min:400,max:800,step:10,value:600,fmt:v=>v+" K",on:noop});slider(c,{id:"TL7",key:"TL4",min:200,max:390,step:10,value:300,fmt:v=>v+" K",on:noop});
+  slider(c,{id:"eX7",key:"eX7",min:5,max:95,step:1,value:60,fmt:v=>v+" %",on:noop});S.ro7=readout(c,[["ec","rEc5"],["qhx","rQhx7"],["qh","rQh7"],["q","rNet7"],["v","rV5"]])})();
+function draw7(){const TH=S.TH7,TL=Math.min(S.TL7,TH-10),eC=1-TL/TH,eX=S.eX7/100,W=500,QHx=W/eX,QLx=QHx-W,QHc=W/eC,QLc=QHc-W,net=QHc-QHx;const g=$("#v7");g.innerHTML="";
+  E("rect",{x:20,y:20,width:270,height:28,rx:8,fill:"var(--red)",opacity:.35,stroke:"var(--red)"},g);E("rect",{x:20,y:210,width:270,height:28,rx:8,fill:"var(--blue)",opacity:.35,stroke:"var(--blue)"},g);txt(g,155,39,"T_H",{"text-anchor":"middle","font-weight":700});txt(g,155,229,"T_L",{"text-anchor":"middle","font-weight":700});
+  const sc=0.012,wd=v=>Math.max(1.5,Math.min(18,v*sc)),ah=v=>Math.max(9,wd(v)*1.4);[[80,"X"],[230,"C"]].forEach(([x,s])=>{E("rect",{x:x-42,y:106,width:84,height:46,rx:8,fill:"var(--copper)",opacity:.35,stroke:"var(--copper)"},g);txt(g,x,134,s==="X"?tr("engX"):tr("carRef"),{"text-anchor":"middle","font-size":11,"font-weight":700})});
+  arrow(g,80,50,80,104,"var(--magenta)",wd(QHx),ah(QHx));arrow(g,80,154,80,208,"var(--magenta)",wd(QLx),ah(QLx));arrow(g,230,104,230,50,"var(--magenta)",wd(QHc),ah(QHc));arrow(g,230,208,230,154,"var(--magenta)",wd(QLc),ah(QLc));arrow(g,124,129,186,129,"var(--green)",wd(W),ah(W));
+  lbl(g,74,80,"|Q′_H| "+fx(QHx,0),"var(--ink)",{"text-anchor":"end","font-size":10});lbl(g,74,184,"|Q′_L| "+fx(QLx,0),"var(--ink)",{"text-anchor":"end","font-size":10});lbl(g,236,80,"|Q_H| "+fx(QHc,0),"var(--ink)",{"font-size":10});lbl(g,236,184,"|Q_L| "+fx(QLc,0),"var(--ink)",{"font-size":10});lbl(g,155,120,"W","var(--green)",{"text-anchor":"middle","font-size":11,"font-weight":700});
+  const ex=375;E("rect",{x:ex-50,y:20,width:100,height:28,rx:8,fill:"var(--red)",opacity:.35,stroke:"var(--red)"},g);E("rect",{x:ex-50,y:210,width:100,height:28,rx:8,fill:"var(--blue)",opacity:.35,stroke:"var(--blue)"},g);E("rect",{x:ex-30,y:106,width:60,height:46,rx:8,fill:"var(--copper)",opacity:.25,stroke:"var(--copper)","stroke-dasharray":"4 3"},g);
+  txt(g,310,134,"=",{"text-anchor":"middle","font-size":22,"font-weight":700});const nq=Math.abs(net);if(nq>0.5){if(net>0){arrow(g,ex,208,ex,154,"var(--red)",wd(nq),ah(nq));arrow(g,ex,104,ex,50,"var(--red)",wd(nq),ah(nq))}else{arrow(g,ex,50,ex,104,"var(--magenta)",wd(nq),ah(nq));arrow(g,ex,154,ex,208,"var(--magenta)",wd(nq),ah(nq))}}
+  lbl(g,ex,262,net>0.5?tr("perfRef"):tr("net7ok"),net>0.5?"var(--red)":"var(--muted)",{"text-anchor":"middle","font-size":11,"font-weight":net>0.5?700:400});lbl(g,ex+8,186,fx(nq,0)+" J","var(--ink)",{"font-size":10});
+  const ro=S.ro7;ro.ec.textContent=pctl(eC,1);ro.qhx.textContent=Jx(QHx);ro.qh.textContent=Jx(QHc);ro.q.textContent=Jx(net);ro.v.innerHTML=tr(Math.abs(eX-eC)<0.005?"vRev":eX>eC?"vNo":"vOK")}
+
+/* ---------- 8. microstates for a few molecules ---------- */
+const S8={t:0,playing:PL(),side:[],acc:0,visits:[],last:-1};
+function reset8(){const N=S.N8;S8.side=Array.from({length:N},(_,i)=>i<N/2?0:1);S8.visits=new Array(N+1).fill(0);S8.acc=0;S8.last=-1}
+(function(){const c=$("#c8");slider(c,{id:"N8",key:"N8",min:2,max:12,step:1,value:6,fmt:v=>String(v),on:reset8});transport(c,S8,reset8);S.ro8=readout(c,[["n","rN8"],["W","rW8"],["S","rS8"],["P","rP8"],["T","rT8"]]);reset8()})();
+function draw8(dt){const N=S.N8,o=S8;if(o.side.length!==N)reset8();if(o.playing&&dt>0){o.acc+=dt;while(o.acc>0.35){o.acc-=0.35;const i=Math.floor(Math.random()*N);o.side[i]=1-o.side[i];o.last=i;o.visits[o.side.filter(s=>s===0).length]++}}
+  const n1=o.side.filter(s=>s===0).length,g=$("#v8");g.innerHTML="";const b={x0:40,x1:400,y0:20,y1:120},xp=220;E("rect",{x:b.x0,y:b.y0,width:b.x1-b.x0,height:b.y1-b.y0,fill:"none",stroke:"var(--ink)","stroke-width":2},g);E("line",{x1:xp,x2:xp,y1:b.y0,y2:b.y1,stroke:"var(--muted)","stroke-dasharray":"5 4"},g);
+  const L=[],Rr=[];o.side.forEach((s,i)=>(s?Rr:L).push(i));[[L,b.x0],[Rr,xp]].forEach(([arr,x0])=>arr.forEach((id,j)=>{const cx=x0+26+(j%6)*28,cy=b.y0+28+Math.floor(j/6)*42;E("circle",{cx,cy,r:12,fill:"var(--blue)",stroke:id===o.last?"var(--red)":"var(--ink)","stroke-width":id===o.last?3:1},g);txt(g,cx,cy+4,String(id+1),{"text-anchor":"middle","font-size":11,"font-weight":700,fill:"#fff"})}));
+  txt(g,(b.x0+xp)/2,b.y1+16,"n₁ = "+n1,{"text-anchor":"middle","font-size":12});txt(g,(xp+b.x1)/2,b.y1+16,"n₂ = "+(N-n1),{"text-anchor":"middle","font-size":12});
+  const Wmax=Math.exp(lnW(N,Math.floor(N/2))),G=graph(g,{l:60,r:420,t0:160,b:286,xmin:-0.6,xmax:N+0.6,ymin:0,ymax:Wmax*1.15,xt:Array.from({length:N+1},(_,k)=>[k,String(k)]),yt:[[0,"0"],[Wmax,String(Math.round(Wmax))]],yl:"W(n₁) = N!/(n₁! n₂!)"});
+  const tot=o.visits.reduce((a,v)=>a+v,0);for(let k=0;k<=N;k++){const W=Math.round(Math.exp(lnW(N,k))),bw=Math.min(26,300/(N+1));E("rect",{x:G.X(k)-bw/2,y:G.Y(W),width:bw,height:G.Y(0)-G.Y(W),fill:k===n1?"var(--red)":"var(--blue)",opacity:k===n1?.9:.5},g);
+    if(tot>20){const ex=o.visits[k]/tot*2**N;E("circle",{cx:G.X(k),cy:G.Y(ex),r:3.5,fill:"var(--copper)"},g)}}
+  if(tot>20)lbl(g,420,172,tr("visits8"),"var(--copper)",{"text-anchor":"end","font-size":10});
+  const W=Math.round(Math.exp(lnW(N,n1))),ro=S.ro8;ro.n.textContent=n1+" : "+(N-n1);ro.W.textContent=String(W);ro.S.textContent=fx(KB*Math.log(W)/1e-23,2)+" ×10⁻²³ J/K";ro.P.textContent=pctl(W/2**N,1);ro.T.textContent=String(2**N)}
+
+/* ---------- 9. many molecules: the central peak and S = k ln W ---------- */
+(function(){const c=$("#c9");slider(c,{id:"e9",key:"e9",min:1,max:24,step:0.1,value:2,fmt:v=>"10^"+v.toFixed(1),on:noop});S.ro9=readout(c,[["N","rNN9"],["w","rWd9"],["p","rP9"],["S","rS9"],["n","rSn9"]])})();
+function erfc(x){const t=1/(1+0.5*Math.abs(x)),y=t*Math.exp(-x*x-1.26551223+t*(1.00002368+t*(0.37409196+t*(0.09678418+t*(-0.18628806+t*(0.27886807+t*(-1.13520398+t*(1.48851587+t*(-0.82215223+t*0.17087277)))))))));return x>=0?y:2-y}
+function draw9(){const N=10**S.e9,sig=50/Math.sqrt(N),g=$("#v9");g.innerHTML="";const G=graph(g,{l:60,r:420,t0:30,b:236,xmin:0,xmax:100,ymin:0,ymax:1.12,xt:[[0,"0"],[25,"25"],[50,"50"],[75,"75"],[100,"100 %"]],yt:[[0,"0"],[1,"W_max"]],yl:tr("w9"),xl:tr("pl9")});
+  let f;if(N<=2000){const n=Math.round(N),m=lnW(n,Math.floor(n/2));f=x=>{const k=Math.round(x/100*n);return Math.exp(lnW(n,k)-m)}}else f=x=>Math.exp(-((x-50)**2)/(2*sig*sig));
+  const n=N<=2000?Math.round(N):0;if(n&&n<=60){for(let k=0;k<=n;k++){const x=100*k/n,h=f(x);E("line",{x1:G.X(x),x2:G.X(x),y1:G.Y(0),y2:G.Y(h),stroke:"var(--magenta)","stroke-width":Math.max(1.5,300/n/2)},g)}}
+  else{const P=[];const span=Math.min(50,Math.max(6*sig,0.4));for(let i=0;i<=400;i++){const x=50-span+2*span*i/400;P.push([x,f(x)])}if(span<50){P.unshift([0,0],[50-span,0]);P.push([50+span,0],[100,0])}E("path",{d:polyPath(G,P),fill:"none",stroke:"var(--magenta)","stroke-width":3},g)}
+  lbl(g,G.X(50)+10,G.Y(1)+14,tr("peak9"),"var(--ink)",{"font-size":11});
+  const z=0.02*Math.sqrt(N);let ptxt;if(n&&n<=1000){let s=0;const m0=lnFact(n);for(let k=Math.ceil(0.51*n);k<=n;k++)s+=Math.exp(m0-lnFact(k)-lnFact(n-k)-n*Math.log(2));ptxt=s>1e-4?pctl(s,2):sci(s)}else if(z<30)ptxt=sci(0.5*erfc(z/Math.SQRT2));else{const l10=-(z*z/2)/Math.LN10-Math.log10(z*Math.sqrt(2*Math.PI));ptxt="10^("+fx(l10,0)+")"}
+  const Smax=N<=2000?KB*lnW(Math.round(N),Math.floor(Math.round(N)/2)):KB*N*Math.log(2),ro=S.ro9;ro.N.textContent=N<1e4?String(Math.round(N)):sci(N);ro.w.textContent=sig<0.01?sci(sig)+" %":fx(sig,2)+" %";ro.p.innerHTML=ptxt;ro.S.textContent=sci(Smax)+" J/K";ro.n.textContent=sci(N/NA_*R_*Math.log(2))+" J/K"}
+
+/* ---------- loop ---------- */
+function applyText(){document.querySelectorAll("[data-i18n]").forEach(el=>{el.innerHTML=tr(el.dataset.i18n)})}
+const DRAWS=[["hero",drawHero],["v1",draw1],["v2",draw2],["v3",draw3],["v4",draw4],["v5",draw5],["v6",draw6],["v7",draw7],["v8",draw8],["v9",draw9]];
+
+
+const VIS=new Set();const io="IntersectionObserver" in window?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)VIS.add(e.target.id);else VIS.delete(e.target.id)}),{rootMargin:"150px"}):null;
+DRAWS.forEach(([id])=>{if(io)io.observe(document.getElementById(id));else VIS.add(id)});
+let last=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-last)/1000);last=now;DRAWS.forEach(([id,f])=>{if(VIS.has(id))f(dt)});requestAnimationFrame(frame)}
+applyText();DRAWS.forEach(([,f])=>f(0));requestAnimationFrame(frame);
+
+</script>
+</body>
+</html>
