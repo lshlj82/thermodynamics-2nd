@@ -56,7 +56,7 @@ The header animation shows a free expansion. A gas spreads through an opening in
 - **Numerical check:** In section 2, $\int dQ/T$ is added up numerically along each path, so the agreement with the formula is a real check, not the formula shown twice.
 - **Large-N approximation:** For large $N$, section 9 uses Stirling's approximation. The peak is drawn as a Gaussian, and very small probabilities are shown as powers of ten.
 - **Hopping model:** In section 8 one molecule chosen at random switches sides at each step, so in the long run every microstate is equally likely, which is the basic assumption of statistical mechanics.
-- **Display:** The pages follow the system's light or dark setting. Under `prefers-reduced-motion`, the animations start paused and can be played by hand. Only simulations that are currently on screen are animated.
+- **Display:** The pages follow the system's light or dark setting, and a sun/moon button in the top-right corner switches by hand, and the choice is remembered across pages. Under `prefers-reduced-motion`, the animations start paused and can be played by hand. Only simulations that are currently on screen are animated.
 
 ## Credits
 
